@@ -10,8 +10,8 @@ More information is coming soon.
 
 ## __Requirements__
 ---
-* Ubuntu 22.04
-* Vmware
+* Ubuntu
+* 
 * 
 * 
 
@@ -67,10 +67,9 @@ liggghts -in FILENAME
 paraview
 ```
 
-
 ---
 
-### Concrete Controller 
+### 
 
 ```bash
 
@@ -78,11 +77,10 @@ paraview
 - Devices
     - TBC
 
-### Arduino temperature sensor Kit 
+### 
 
 ```bash
 ```
-- Devices 
 
 
 ## Credits
