@@ -1,0 +1,16 @@
+solid Insertionsface
+   facet normal 0.000000e+00 0.000000e+00 -1.000000e+00
+      outer loop
+         vertex 2.500000e+01 7.499998e+01 -9.321678e+01
+         vertex 2.250000e+02 7.499998e+01 -9.321678e+01
+         vertex 2.500000e+01 -7.500003e+01 -9.321678e+01
+      endloop
+   endfacet
+   facet normal 0.000000e+00 0.000000e+00 -1.000000e+00
+      outer loop
+         vertex 2.500000e+01 -7.500003e+01 -9.321678e+01
+         vertex 2.250000e+02 7.499998e+01 -9.321678e+01
+         vertex 2.250000e+02 -7.500003e+01 -9.321678e+01
+      endloop
+   endfacet
+endsolid
