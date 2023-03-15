@@ -155,17 +155,12 @@ fix 		m4 all property/global coefficientFriction peratomtypepair ${natoms} ${sf1
 fix 		m5 all property/global coefficientRollingFriction peratomtypepair ${natoms} ${rf11} ${rf12} ${rf21} ${rf22}
 
 
-
 ###################################Generation and Loading of the Geometry .stl#######################################
 
 #load mesh from STL file. Type 2 for geometry. Scale down to transform mm to meters
 fix	funnel 	all mesh/surface file meshes/funnel.stl type 2 scale 0.001		
-fix	screw 	all mesh/surface file meshes/impeller.stl type 2 scale 0.001	
 
-fix	walls 	all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 2 meshes funnel screw
-
-fix	Movescrew  all move/mesh mesh screw rotate origin 0 0 0 axis 0 0 -1 period ${screwPeriod}	
-
+fix	walls 	all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 1 meshes funnel
 
 
 
@@ -176,11 +171,10 @@ fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${densit
 fix 	pdd1 all particledistribution/discrete 32452867 ${nradii} pts1 ${frac1} pts2 ${frac2} 
 
 fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con.stl  type 1 scale 0.001 
-fix	ins_mesh_acc all mesh/surface/planar file meshes/insertion_acc.stl  type 1 scale 0.001 
 
 fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1 &
         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0  &
-        insertion_face ins_mesh_con extrude_length 0.20
+        insertion_face ins_mesh_con extrude_length 0.05
 
 		
 ###################################Dumping of the data for post-processing to visualize############################
