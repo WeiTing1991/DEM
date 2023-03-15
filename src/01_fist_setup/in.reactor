@@ -159,8 +159,12 @@ fix 		m5 all property/global coefficientRollingFriction peratomtypepair ${natoms
 ###################################Generation and Loading of the Geometry .stl#######################################
 
 #load mesh from STL file. Type 2 for geometry. Scale down to transform mm to meters
-fix		funnel 	all mesh/surface file meshes/funnel.stl type 2 scale 0.001		
-fix 		walls 	all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 1 meshes funnel
+fix	funnel 	all mesh/surface file meshes/funnel.stl type 2 scale 0.001		
+fix	screw 	all mesh/surface file meshes/impeller.stl type 2 scale 0.001	
+
+fix	walls 	all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 2 meshes funnel screw
+
+fix	Movescrew  all move/mesh mesh screw rotate origin 0 0 0 axis 0 0 -1 period ${screwPeriod}	
 
 
 
@@ -200,6 +204,8 @@ thermo_modify lost ignore norm no
 run    1
 dump   dmpparticle all custom/vtk 200 post/particles_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius 
 dump   dumpfunnel all mesh/stl 200 post/funnel*.stl funnel
+
+dump	dumpscrew all mesh/stl 200 post/screw*.stl screw
 
 run	100000 upto
 unfix	ins
