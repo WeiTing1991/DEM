@@ -201,14 +201,12 @@ fix 		m5 all property/global coefficientRollingFriction peratomtypepair 2 0.08 0
 fix 		m5 all property/global coefficientRollingFriction peratomtypepair 2 0.08 0.08 0.08 0.08
 
 
-
 ###################################Generation and Loading of the Geometry .stl#######################################
 
 #load mesh from STL file. Type 2 for geometry. Scale down to transform mm to meters
 fix	funnel 	all mesh/surface file meshes/funnel.stl type 2 scale 0.001
-fix	screw 	all mesh/surface file meshes/impeller.stl type 2 scale 0.001
 
-fix	walls 	all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 2 meshes funnel screw
+fix	walls 	all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 1 meshes funnel
 WARNING: 
 	The contact model you specified is not located in any whitelist.
 	Because of this the model will be run in an unoptimized version (increasing runtime by up to 20%).
@@ -219,10 +217,6 @@ WARNING:
 	If you perform one of the steps above LIGGGHTS(R) needs to be recompiled to generate the optimized code.
 
  (../contact_models.h:365)
-
-fix	Movescrew  all move/mesh mesh screw rotate origin 0 0 0 axis 0 0 -1 period ${screwPeriod}
-fix	Movescrew  all move/mesh mesh screw rotate origin 0 0 0 axis 0 0 -1 period 0.9738929
-
 
 
 
@@ -240,11 +234,10 @@ fix 	pdd1 all particledistribution/discrete 32452867 2 pts1 0.2 pts2 ${frac2}
 fix 	pdd1 all particledistribution/discrete 32452867 2 pts1 0.2 pts2 0.8
 
 fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con.stl  type 1 scale 0.001
-fix	ins_mesh_acc all mesh/surface/planar file meshes/insertion_acc.stl  type 1 scale 0.001
 
-fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.20
-fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass 10 massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.20
-fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass 10 massrate 2 overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.20
+fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.05
+fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass 10 massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.05
+fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass 10 massrate 2 overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.05
 
 
 ###################################Dumping of the data for post-processing to visualize############################
@@ -268,5 +261,40 @@ thermo_modify lost ignore norm no
 
 
 run    1
-Setting up run at Wed Mar 15 18:23:59 2023
+Setting up run at Wed Mar 15 19:04:07 2023
 
+INFO: Particle insertion ins: 64.808066 particles every 666 steps - particle rate 973.094081, (mass rate 2.000000e+00)
+      4865 particles (mass 9.999033e+00) within 49950 steps
+Memory usage per processor = 9.27153 Mbytes
+    Step    Atoms         KinEng              1         Volume 
+       0        0              0              0          0.192 
+INFO: Particle insertion ins: inserted 6 particle templates (mass 2.959632e-02) at step 1
+ - a total of 6 particle templates (mass 2.959632e-02) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+       1        6   0.0083239639              0          0.192 
+Loop time of 0.0163414 on 6 procs for 1 steps with 6 atoms, finish time Wed Mar 15 19:04:07 2023
+
+
+Pair  time (%) = 2.52333e-06 (0.0154414)
+Neigh time (%) = 7.96232e-05 (0.487249)
+Comm  time (%) = 3.20707e-05 (0.196255)
+Outpt time (%) = 0.000255453 (1.56323)
+Other time (%) = 0.0159717 (97.7378)
+
+Nlocal:    1 ave 3 max 0 min
+Histogram: 4 0 0 0 0 0 0 0 0 2
+Nghost:    1 ave 3 max 0 min
+Histogram: 4 0 0 0 0 0 0 0 0 2
+Neighs:    0.333333 ave 1 max 0 min
+Histogram: 4 0 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 2
+Ave neighs/atom = 0.333333
+Neighbor list builds = 1
+Dangerous builds = 0
+dump   dmpparticle all custom/vtk 200 post/particles_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
+dump   dumpfunnel all mesh/stl 200 post/funnel*.stl funnel
+
+dump	dumpscrew all mesh/stl 200 post/screw*.stl screw
+ERROR: Illegal dump mesh/stl command, unknown keyword or mesh (../dump_mesh_stl.cpp:129)
+ ”g¬] (../dump_mesh_stl.cpp:129)
