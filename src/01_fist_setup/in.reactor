@@ -89,9 +89,7 @@ variable	fillsteps	equal	${filltime}/${dt}		#Transform time to iteration steps
 
 variable	fillmassrate_2	equal	${fillmassrate}/10	#kg/s
 
-
 variable        screwPeriod     equal   (2*3.14159*0.155) #s	#Period of the srew rotation (time for 1 rotation)
-
 
 ####settle time####
 
@@ -113,8 +111,6 @@ variable	opensteps	equal	${opentime}/${dt}		#Transform time to iteration steps
 variable	dischargetime	equal	25 #seconds
 
 variable	dischargesteps	equal	${dischargetime}/${dt}	#Transform time to iteration steps
-
-
 
 
 
@@ -140,7 +136,6 @@ fix	integrator all nve/sphere			#default
 
 fix	gravi all gravity 9.81 vector 0.0 0.0 -1.0	#gravity of 9.81 m/s² in negative z direction
 
-fix	integrator all nve/sphere			#default
 
 
 
@@ -174,7 +169,7 @@ fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con.stl  type 1 s
 
 fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1 &
         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0  &
-        insertion_face ins_mesh_con extrude_length 0.05
+        insertion_face ins_mesh_con extrude_length 0.25
 
 		
 ###################################Dumping of the data for post-processing to visualize############################
@@ -198,8 +193,6 @@ thermo_modify lost ignore norm no
 run    1
 dump   dmpparticle all custom/vtk 200 post/particles_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius 
 dump   dumpfunnel all mesh/stl 200 post/funnel*.stl funnel
-
-dump	dumpscrew all mesh/stl 200 post/screw*.stl screw
 
 run	100000 upto
 unfix	ins

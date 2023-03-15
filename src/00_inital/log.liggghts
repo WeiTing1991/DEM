@@ -1,4 +1,4 @@
-LIGGGHTS (Version LIGGGHTS-PUBLIC 3.8.0, compiled 2023-01-27-22:33:46 by weitinglinux, git commit 9fb7f67592be9304afca9cb6840892b3b7d048d6)
+LIGGGHTS (Version LIGGGHTS-PUBLIC 3.8.0, compiled 2023-03-15-17:42:14 by weitinglinux, git commit 9fb7f67592be9304afca9cb6840892b3b7d048d6)
 #Header for General commands#
 
 atom_style	granular		#Simulation of particles
@@ -266,9 +266,8 @@ thermo_modify lost ignore norm no
 
 
 run    1
-Setting up run at Thu Mar  9 00:19:10 2023
+Setting up run at Wed Mar 15 19:14:27 2023
 
-WARNING: Fix mesh: Mesh contains highly skewed element, moving mesh (if used) will not parallelize well (../surface_mesh_I.h:657)
 INFO: Particle insertion ins: 324.332257 particles every 3333 steps - particle rate 973.094081, (mass rate 2.000000e+00)
       4865 particles (mass 9.999033e+00) within 49995 steps
 Memory usage per processor = 9.27153 Mbytes
@@ -277,14 +276,14 @@ Memory usage per processor = 9.27153 Mbytes
 INFO: Particle insertion ins: inserted 324 particle templates (mass 6.702332e-01) at step 1
  - a total of 324 particle templates (mass 6.702332e-01) inserted so far.
        1      324      0.1885031              0          0.192 
-Loop time of 0.0158641 on 6 procs for 1 steps with 324 atoms, finish time Thu Mar  9 00:19:14 2023
+Loop time of 0.0136535 on 6 procs for 1 steps with 324 atoms, finish time Wed Mar 15 19:14:27 2023
 
 
-Pair  time (%) = 4.39567e-06 (0.0277083)
-Neigh time (%) = 9.39237e-05 (0.592052)
-Comm  time (%) = 2.53173e-05 (0.159589)
-Outpt time (%) = 0.00052851 (3.33148)
-Other time (%) = 0.015212 (95.8892)
+Pair  time (%) = 2.84717e-06 (0.0208531)
+Neigh time (%) = 8.43017e-05 (0.617438)
+Comm  time (%) = 2.21172e-05 (0.161989)
+Outpt time (%) = 0.000108333 (0.793447)
+Other time (%) = 0.0134359 (98.4063)
 
 Nlocal:    54 ave 163 max 0 min
 Histogram: 4 0 0 0 0 0 0 0 0 2
@@ -297,3 +296,163 @@ Total # of neighbors = 51
 Ave neighs/atom = 0.157407
 Neighbor list builds = 1
 Dangerous builds = 0
+dump	dmpparticle all custom/vtk 200 post/particles_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
+dump   dumpfunnel all mesh/stl 200 post/funnel*.stl funnel
+
+run	100000 upto
+Setting up run at Wed Mar 15 19:14:27 2023
+
+Memory usage per processor = 9.27153 Mbytes
+    Step    Atoms         KinEng              1         Volume 
+       1      324      0.1885031              0          0.192 
+    1000      324     0.28320887              0          0.192 
+    2000      324     0.50837939  0.00022993803          0.192 
+    3000      324     0.42121077  0.00040197424          0.192 
+INFO: Particle insertion ins: inserted 325 particle templates (mass 6.665337e-01) at step 3334
+ - a total of 649 particle templates (mass 1.336767e+00) inserted so far.
+    4000      649      0.4519997  0.00036511985          0.192 
+    5000      649     0.42553049  0.00024181973          0.192 
+    6000      649     0.34258227  0.00027914598          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.659171e-01) at step 6667
+ - a total of 973 particle templates (mass 2.002684e+00) inserted so far.
+    7000      973     0.46788395   0.0001827925          0.192 
+    8000      973     0.38258626  0.00014549896          0.192 
+    9000      973     0.35916071   0.0002130756          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.616010e-01) at step 10000
+ - a total of 1297 particle templates (mass 2.664285e+00) inserted so far.
+   10000     1297      0.4163573  0.00022841118          0.192 
+   11000     1297     0.32151781  0.00016380975          0.192 
+   12000     1297     0.31928989  0.00016686354          0.192 
+   13000     1297     0.20426076  0.00013184926          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.659171e-01) at step 13333
+ - a total of 1621 particle templates (mass 3.330202e+00) inserted so far.
+   14000     1621     0.31411765  0.00016351422          0.192 
+   15000     1621     0.28539342   0.0001584492          0.192 
+   16000     1621     0.20957414  0.00014910227          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.616010e-01) at step 16666
+ - a total of 1945 particle templates (mass 3.991803e+00) inserted so far.
+   17000     1945     0.31805061  0.00013770427          0.192 
+   18000     1945     0.27032681  0.00013512288          0.192 
+   19000     1945     0.19277851  0.00013413413          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.659171e-01) at step 19999
+ - a total of 2269 particle templates (mass 4.657720e+00) inserted so far.
+   20000     2269     0.32173775   0.0001080514          0.192 
+   21000     2269     0.25208327  7.4872585e-05          0.192 
+   22000     2269     0.19285937  0.00012655349          0.192 
+   23000     2269     0.12096829  0.00012705216          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.659171e-01) at step 23332
+ - a total of 2593 particle templates (mass 5.323637e+00) inserted so far.
+   24000     2593     0.23081897  8.1660536e-05          0.192 
+   25000     2593     0.17923018  0.00010149026          0.192 
+   26000     2593     0.12891989  0.00010227666          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.659171e-01) at step 26665
+ - a total of 2917 particle templates (mass 5.989554e+00) inserted so far.
+   27000     2917     0.23125062  6.9329473e-05          0.192 
+   28000     2917       0.178555  8.2234517e-05          0.192 
+   29000     2917     0.10614903  6.3452113e-05          0.192 
+INFO: Particle insertion ins: inserted 325 particle templates (mass 6.708498e-01) at step 29998
+ - a total of 3242 particle templates (mass 6.660404e+00) inserted so far.
+   30000     3242     0.22209938  6.6015979e-05          0.192 
+   31000     3242     0.17454216  6.5800177e-05          0.192 
+   32000     3242    0.094518839  6.6015961e-05          0.192 
+   33000     3242    0.040898718  4.2180599e-05          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.702332e-01) at step 33331
+ - a total of 3566 particle templates (mass 7.330638e+00) inserted so far.
+   34000     3566     0.18330826  0.00011841652          0.192 
+   35000     3566     0.13390879  0.00013065975          0.192 
+   36000     3566     0.17862914  0.00036913152          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.702332e-01) at step 36664
+ - a total of 3890 particle templates (mass 8.000871e+00) inserted so far.
+   37000     3890     0.27760493  0.00023408963          0.192 
+   38000     3883     0.42634902  0.00062667977          0.192 
+   39000     3871     0.50486374  0.00073648637          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.659171e-01) at step 39997
+ - a total of 4214 particle templates (mass 8.666788e+00) inserted so far.
+   40000     4166     0.86013516  0.00061248318          0.192 
+   41000     4075      1.0797469  0.00080906258          0.192 
+   42000     4008      1.2496638  0.00083068579          0.192 
+   43000     3926      1.2432605  0.00083123151          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.659171e-01) at step 43330
+ - a total of 4538 particle templates (mass 9.332705e+00) inserted so far.
+   44000     4127      1.1784135  0.00099798239          0.192 
+   45000     4021      1.2148723  0.00076888833          0.192 
+   46000     3914      1.1999321  0.00088441763          0.192 
+INFO: Particle insertion ins: inserted 324 particle templates (mass 6.659171e-01) at step 46663
+ - a total of 4862 particle templates (mass 9.998622e+00) inserted so far.
+   47000     4132      1.1690165  0.00045407889          0.192 
+   48000     4030       1.128441  0.00081854486          0.192 
+   49000     3954      1.2339066  0.00088986898          0.192 
+INFO: Particle insertion ins: inserted 3 particle templates (mass 6.165899e-03) at step 49996
+ - a total of 4865 particle templates (mass 1.000479e+01) inserted so far.
+   50000     3859      1.0244805  0.00071117337          0.192 
+   51000     3761     0.83034991   0.0004155124          0.192 
+   52000     3673     0.83126881  0.00020560231          0.192 
+   53000     3607     0.74560627  0.00011367568          0.192 
+   54000     3532     0.39317773  3.8419794e-05          0.192 
+   55000     3501    0.024272387  4.8826985e-06          0.192 
+   56000     3497      0.0072418  2.7350613e-06          0.192 
+   57000     3495   0.0029353803  5.5447883e-07          0.192 
+   58000     3494  2.1215337e-07  4.7586574e-07          0.192 
+   59000     3494  1.9896174e-07  4.4929464e-07          0.192 
+   60000     3494  1.8770867e-07  4.5947656e-07          0.192 
+   61000     3494  6.1052356e-06  4.6811624e-07          0.192 
+   62000     3494  1.9644293e-07  4.3972467e-07          0.192 
+   63000     3494  2.0422369e-07  4.7902456e-07          0.192 
+   64000     3494  2.0365851e-07  4.7133094e-07          0.192 
+   65000     3494   2.033155e-07  4.4070991e-07          0.192 
+   66000     3494  1.9277807e-07  4.7526709e-07          0.192 
+   67000     3494   1.923919e-07  4.1659998e-07          0.192 
+   68000     3494  1.9923283e-07  4.3969388e-07          0.192 
+   69000     3494  1.9519121e-07  4.6203742e-07          0.192 
+   70000     3494  1.9344107e-07  4.4028835e-07          0.192 
+   71000     3494  1.9293891e-07  3.9678814e-07          0.192 
+   72000     3494  1.9857998e-07  4.4747396e-07          0.192 
+   73000     3494  1.9836558e-07  4.2737231e-07          0.192 
+   74000     3494  1.9649744e-07  4.3598313e-07          0.192 
+   75000     3494  1.8613066e-07   4.613121e-07          0.192 
+   76000     3494  2.0300386e-07  4.5349073e-07          0.192 
+   77000     3494  1.9789198e-07  4.4672374e-07          0.192 
+   78000     3494  1.8065587e-07  4.6677334e-07          0.192 
+   79000     3494   1.979982e-07  4.4837747e-07          0.192 
+   80000     3494   1.918664e-07  4.5607235e-07          0.192 
+   81000     3494  2.0209666e-07  5.0451868e-07          0.192 
+   82000     3494  2.0288658e-07  4.7616837e-07          0.192 
+   83000     3494  2.1156027e-07  4.5045426e-07          0.192 
+   84000     3494  1.9169318e-07  4.3440232e-07          0.192 
+   85000     3494  1.9764061e-07  4.3795533e-07          0.192 
+   86000     3494  2.0894619e-07  4.5461189e-07          0.192 
+   87000     3494  1.8874762e-07  4.5924117e-07          0.192 
+   88000     3494  2.0674737e-07  4.6959499e-07          0.192 
+   89000     3494  1.9234953e-07  4.4077761e-07          0.192 
+   90000     3494  1.9801516e-07  4.3321441e-07          0.192 
+   91000     3494  1.9015033e-07  5.0189952e-07          0.192 
+   92000     3494  1.9481689e-07  4.5506201e-07          0.192 
+   93000     3494   1.914672e-07  4.5417826e-07          0.192 
+   94000     3494  1.8819671e-07  4.1758269e-07          0.192 
+   95000     3494  1.9462942e-07  4.3817536e-07          0.192 
+   96000     3494  1.9152122e-07  4.2656263e-07          0.192 
+   97000     3494  1.9510201e-07  4.4687946e-07          0.192 
+   98000     3494  2.0835418e-07   4.951231e-07          0.192 
+   99000     3494  2.2668257e-07  4.7229943e-07          0.192 
+  100000     3494  4.2857057e-07  4.7979546e-07          0.192 
+Loop time of 122.472 on 6 procs for 99999 steps with 3494 atoms, finish time Wed Mar 15 19:16:29 2023
+
+
+Pair  time (%) = 18.174 (14.8393)
+Neigh time (%) = 6.96231 (5.6848)
+Comm  time (%) = 15.2724 (12.4701)
+Outpt time (%) = 8.72581 (7.12473)
+Other time (%) = 73.3378 (59.8811)
+
+Nlocal:    582.333 ave 1683 max 0 min
+Histogram: 4 0 0 0 0 0 0 0 0 2
+Nghost:    153.5 ave 337 max 0 min
+Histogram: 2 0 0 1 1 0 0 0 0 2
+Neighs:    2570.33 ave 7444 max 0 min
+Histogram: 4 0 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 15422
+Ave neighs/atom = 4.41385
+Neighbor list builds = 12454
+Dangerous builds = 180
+unfix	ins
