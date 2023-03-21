@@ -1,8 +1,5 @@
 # **Discrete element method for self-compacted conrete mixer**
-
-
 ![GitHub - License](https://img.shields.io/badge/License-MIT-blue.svg)
-
 
 More information is coming soon.
 
@@ -13,23 +10,29 @@ More information is coming soon.
 * ParaView 5.11.0
 
 ## __Package Version__
+---
 * LIGGGHTS-PUBLIC 3.8
 
 ## __Installation__
-
+---
 ```bash
 sudo apt-get install git
 git clone https://github.com/CFDEMproject/LIGGGHTS-PUBLIC.git
 
 ```
-install pachages
-
+Install packages
 ```bash
 sudo apt-get install ffmpeg 
 sudo apt install openmpi-bin
 sudo snap install vlc 
 
 sudo apt install cmake libavcodec-dev libavformat-dev libavutil-dev libboost-dev libdouble-conversion-dev libeigen3-dev libexpat1-dev libfontconfig-dev libfreetype6-dev libgdal-dev libglew-dev libhdf5-dev libjpeg-dev libjsoncpp-dev liblz4-dev liblzma-dev libnetcdf-dev libnetcdf-cxx-legacy-dev libogg-dev libpng-dev libpython3-dev libqt5opengl5-dev libqt5x11extras5-dev libsqlite3-dev libswscale-dev libtheora-dev libtiff-dev libxml2-dev libxt-dev qtbase5-dev qttools5-dev zlib1g-dev
+
+sudo apt-get install -y paraview
+```
+
+CMake
+```bash
 
 cd ~/LIGGGHTS-PUBLIC/src
 make auto
@@ -48,19 +51,13 @@ Source the path
 sudo gedit ~/../../etc/bash.bashrc
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/LIGGGHTS-PUBLIC/lib/vtk/install/lib/
 lmp380
-
-sudo apt-get install -y paraview
 ```
 
-Operation
+Run
 ```bash
 mpirun -np {number of core} lmp380 -in {FILENAME}
 paraview
 ```
-
 ---
 
-### 
-### 
-## Credits
-More information is coming soon.
+
