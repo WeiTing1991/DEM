@@ -1,5 +1,5 @@
 LIGGGHTS (Version LIGGGHTS-PUBLIC 3.8.0, compiled 2023-03-15-17:42:14 by weitinglinux, git commit 9fb7f67592be9304afca9cb6840892b3b7d048d6)
-#Header for General commands#
+##Header for General commands#
 
 atom_style	granular		#Simulation of particles
 boundary	f f f			#fixed boundaries -> particles will be deleted if leaving the simulation box
@@ -27,39 +27,38 @@ variable dt equal 1e-4			#timestep = 0.0001 second; Each iteration step represen
 
 ###Specific variables for current simulation####
 
-variable natoms equal 2 	#1 -> particle #2->hopper,frame and ground, lid
+variable natoms equal 2 	#1 -> particle #2->funnel, screw, and screw_inv
 
 ####variable for material properties####
 
 ####Young Modulus####
-variable	youngmodulus1	equal 	1e8		#N/mm²
-variable	youngmodulus2	equal 	1e8		#N/mm²
+soft_particles yes
+variable	youngmodulus1	equal 	5e4	#N/mm²
+variable	youngmodulus2	equal 	5e4	#N/mm²
 
 ####Poission ratio####
-variable 	poission1	equal	0.03
-variable 	poission2	equal	0.03
+variable 	poission1	equal	0.25
+variable 	poission2	equal	0.25
 
 ####variable for contact properties####
 
 ####coefficient of restitution####
-variable	CoR11	equal	0.06
-variable	CoR12	equal	0.06
-variable	CoR21	equal	0.06
-variable	CoR22	equal	0.06
+variable	CoR11	equal	0.3
+variable	CoR12	equal	0.3
+variable	CoR21	equal	0.3
+variable	CoR22	equal	0.3
 
 ####sliding friction coefficient####
-variable	sf11	equal	0.03
-variable	sf12	equal	0.036
-variable	sf21	equal	0.036
-variable	sf22	equal	0.00
+variable	sf11	equal	0.4
+variable	sf12	equal	0.4
+variable	sf21	equal	0.4
+variable	sf22	equal	0.4
 
 ####rolling friction coefficient####
-variable	rf11	equal	0.08
-variable	rf12	equal	0.08
-variable	rf21	equal	0.08
-variable	rf22	equal	0.08
-
-
+variable	rf11	equal	0.05
+variable	rf12	equal	0.05
+variable	rf21	equal	0.05
+variable	rf22	equal	0.05
 
 
 
@@ -68,38 +67,42 @@ variable	rf22	equal	0.08
 #Number of particle radius
 variable	nradii	equal	2
 
-variable	radius1	equal	0.004	#m
-variable	radius2	equal	0.008	#m
+variable	radius1	equal	0.004	#m Fine aggregates
+variable	radius2	equal	0.008	#m Coarse aggregates
 
-variable	frac1	equal	0.2		#20%
-variable	frac2	equal	0.8		#80%
+variable	frac1	equal	0.7		#60%
+variable	frac2	equal	0.3		#40%
 
-variable	density	equal	2300	#kg/m³
-
-
+variable	density	equal	2700	        #kg/m³ #aggregate desnsity
 
 
 
+###filling parameters####
+###define the flowrate
 
-####filling parameters####
 
-variable        filltime	equal	5		#seconds
-variable	fillmass	equal	10	#kg
-variable	fillmassrate	equal	${fillmass}/${filltime}	#kg/s
-variable	fillmassrate	equal	10/${filltime}	
-variable	fillmassrate	equal	10/5	
+variable        filltime	equal	60.0				#seconds
+
+variable	fillmass	equal	${density}*3	                #kg
+variable	fillmass	equal	2700*3	                
+variable	fillmassrate	equal	${fillmass}/${filltime}	        #kg/s
+variable	fillmassrate	equal	8100/${filltime}	        
+variable	fillmassrate	equal	8100/60	        
 variable	fillsteps	equal	${filltime}/${dt}		#Transform time to iteration steps
-variable	fillsteps	equal	5/${dt}		
-variable	fillsteps	equal	5/0.0001		
+variable	fillsteps	equal	60/${dt}		
+variable	fillsteps	equal	60/0.0001		
 
-variable	fillmassrate_2	equal	${fillmassrate}/10	#kg/s
-variable	fillmassrate_2	equal	2/10	
+# rpm = roataion per minute
+# ex. 60 rpm = 60 rev/min = 1 rev/s
 
-variable        screwPeriod     equal   (2*3.14159*0.155) #s	#Period of the srew rotation (time for 1 rotation)
+variable        screwSpeed      equal   60.0                             #rpm
+variable        screwPeriod     equal   ${screwSpeed}/60.0               #s/rev ,period of the srew rotation (time for 1 rotation)
+variable        screwPeriod     equal   60/60.0               
 
+###################################TBC
 ####settle time####
 
-variable	settletime	equal	1 #second
+variable	settletime	equal	1 #sec
 
 variable	settlesteps	equal	${settletime}/${dt}		#Transform time to iteration steps
 variable	settlesteps	equal	1/${dt}		
@@ -123,6 +126,9 @@ variable	dischargetime	equal	25 #seconds
 variable	dischargesteps	equal	${dischargetime}/${dt}	#Transform time to iteration steps
 variable	dischargesteps	equal	25/${dt}	
 variable	dischargesteps	equal	25/0.0001	
+##################################
+
+
 
 
 
@@ -169,39 +175,45 @@ fix	gravi all gravity 9.81 vector 0.0 0.0 -1.0	#gravity of 9.81 m/s² in negativ
 
 
 
-
-
 ###################################Definition of Material properties#################################################
 
 
-fix 		m1 all property/global youngsModulus peratomtype ${youngmodulus1} ${youngmodulus2}
-fix 		m1 all property/global youngsModulus peratomtype 100000000 ${youngmodulus2}
-fix 		m1 all property/global youngsModulus peratomtype 100000000 100000000
-fix 		m2 all property/global poissonsRatio peratomtype ${poission1} ${poission2}
-fix 		m2 all property/global poissonsRatio peratomtype 0.03 ${poission2}
-fix 		m2 all property/global poissonsRatio peratomtype 0.03 0.03
-fix 		m3 all property/global coefficientRestitution peratomtypepair ${natoms} 0.6 0.6 0.6 0.6
-fix 		m3 all property/global coefficientRestitution peratomtypepair 2 0.6 0.6 0.6 0.6
-fix 		m4 all property/global coefficientFriction peratomtypepair ${natoms} ${sf11} ${sf12} ${sf21} ${sf22}
-fix 		m4 all property/global coefficientFriction peratomtypepair 2 ${sf11} ${sf12} ${sf21} ${sf22}
-fix 		m4 all property/global coefficientFriction peratomtypepair 2 0.03 ${sf12} ${sf21} ${sf22}
-fix 		m4 all property/global coefficientFriction peratomtypepair 2 0.03 0.036 ${sf21} ${sf22}
-fix 		m4 all property/global coefficientFriction peratomtypepair 2 0.03 0.036 0.036 ${sf22}
-fix 		m4 all property/global coefficientFriction peratomtypepair 2 0.03 0.036 0.036 0
-fix 		m5 all property/global coefficientRollingFriction peratomtypepair ${natoms} ${rf11} ${rf12} ${rf21} ${rf22}
-fix 		m5 all property/global coefficientRollingFriction peratomtypepair 2 ${rf11} ${rf12} ${rf21} ${rf22}
-fix 		m5 all property/global coefficientRollingFriction peratomtypepair 2 0.08 ${rf12} ${rf21} ${rf22}
-fix 		m5 all property/global coefficientRollingFriction peratomtypepair 2 0.08 0.08 ${rf21} ${rf22}
-fix 		m5 all property/global coefficientRollingFriction peratomtypepair 2 0.08 0.08 0.08 ${rf22}
-fix 		m5 all property/global coefficientRollingFriction peratomtypepair 2 0.08 0.08 0.08 0.08
+fix 	m1 all property/global youngsModulus peratomtype ${youngmodulus1} ${youngmodulus2}
+fix 	m1 all property/global youngsModulus peratomtype 50000 ${youngmodulus2}
+fix 	m1 all property/global youngsModulus peratomtype 50000 50000
+fix 	m2 all property/global poissonsRatio peratomtype ${poission1} ${poission2}
+fix 	m2 all property/global poissonsRatio peratomtype 0.25 ${poission2}
+fix 	m2 all property/global poissonsRatio peratomtype 0.25 0.25
+fix 	m3 all property/global coefficientRestitution peratomtypepair ${natoms} ${CoR11} ${CoR12} ${CoR21} ${CoR22}
+fix 	m3 all property/global coefficientRestitution peratomtypepair 2 ${CoR11} ${CoR12} ${CoR21} ${CoR22}
+fix 	m3 all property/global coefficientRestitution peratomtypepair 2 0.3 ${CoR12} ${CoR21} ${CoR22}
+fix 	m3 all property/global coefficientRestitution peratomtypepair 2 0.3 0.3 ${CoR21} ${CoR22}
+fix 	m3 all property/global coefficientRestitution peratomtypepair 2 0.3 0.3 0.3 ${CoR22}
+fix 	m3 all property/global coefficientRestitution peratomtypepair 2 0.3 0.3 0.3 0.3
+fix 	m4 all property/global coefficientFriction peratomtypepair ${natoms} ${sf11} ${sf12} ${sf21} ${sf22}
+fix 	m4 all property/global coefficientFriction peratomtypepair 2 ${sf11} ${sf12} ${sf21} ${sf22}
+fix 	m4 all property/global coefficientFriction peratomtypepair 2 0.4 ${sf12} ${sf21} ${sf22}
+fix 	m4 all property/global coefficientFriction peratomtypepair 2 0.4 0.4 ${sf21} ${sf22}
+fix 	m4 all property/global coefficientFriction peratomtypepair 2 0.4 0.4 0.4 ${sf22}
+fix 	m4 all property/global coefficientFriction peratomtypepair 2 0.4 0.4 0.4 0.4
+fix 	m5 all property/global coefficientRollingFriction peratomtypepair ${natoms} ${rf11} ${rf12} ${rf21} ${rf22}
+fix 	m5 all property/global coefficientRollingFriction peratomtypepair 2 ${rf11} ${rf12} ${rf21} ${rf22}
+fix 	m5 all property/global coefficientRollingFriction peratomtypepair 2 0.05 ${rf12} ${rf21} ${rf22}
+fix 	m5 all property/global coefficientRollingFriction peratomtypepair 2 0.05 0.05 ${rf21} ${rf22}
+fix 	m5 all property/global coefficientRollingFriction peratomtypepair 2 0.05 0.05 0.05 ${rf22}
+fix 	m5 all property/global coefficientRollingFriction peratomtypepair 2 0.05 0.05 0.05 0.05
 
 
 ###################################Generation and Loading of the Geometry .stl#######################################
 
 #load mesh from STL file. Type 2 for geometry. Scale down to transform mm to meters
-fix	funnel 	all mesh/surface file meshes/funnel.stl type 2 scale 0.001
+fix	funnel 		all mesh/surface file meshes/funnel.stl type 2 scale 0.001
 
-fix	walls 	all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 1 meshes funnel
+fix	screw 		all mesh/surface file meshes/impeller_1.stl type 2 scale 0.001 curvature 1e-5 curvature_tolerant yes
+fix	screw_inv 	all mesh/surface file meshes/impeller_inver_2.stl type 2 scale 0.001 curvature 1e-5 curvature_tolerant yes
+
+
+fix	walls 		all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 3 meshes funnel screw screw_inv
 WARNING: 
 	The contact model you specified is not located in any whitelist.
 	Because of this the model will be run in an unoptimized version (increasing runtime by up to 20%).
@@ -213,26 +225,31 @@ WARNING:
 
  (../contact_models.h:365)
 
+fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 1 period ${screwPeriod}
+fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 1 period 1
+
+fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 -1 period ${screwPeriod}
+fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 -1 period 1
 
 
 ###################################Generation and Insertion of the particles#########################################
 
 fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${density} radius constant ${radius1}
-fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant 2300 radius constant ${radius1}
-fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant 2300 radius constant 0.004
+fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant 2700 radius constant ${radius1}
+fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant 2700 radius constant 0.004
 fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${density} radius constant ${radius2}
-fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant 2300 radius constant ${radius2}
-fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant 2300 radius constant 0.008
+fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant 2700 radius constant ${radius2}
+fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant 2700 radius constant 0.008
 fix 	pdd1 all particledistribution/discrete 32452867 ${nradii} pts1 ${frac1} pts2 ${frac2}
 fix 	pdd1 all particledistribution/discrete 32452867 2 pts1 ${frac1} pts2 ${frac2}
-fix 	pdd1 all particledistribution/discrete 32452867 2 pts1 0.2 pts2 ${frac2}
-fix 	pdd1 all particledistribution/discrete 32452867 2 pts1 0.2 pts2 0.8
+fix 	pdd1 all particledistribution/discrete 32452867 2 pts1 0.7 pts2 ${frac2}
+fix 	pdd1 all particledistribution/discrete 32452867 2 pts1 0.7 pts2 0.3
 
 fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con.stl  type 1 scale 0.001
 
-fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.25
-fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass 10 massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.25
-fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass 10 massrate 2 overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.25
+fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.08
+fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass 8100 massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.08
+fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1         mass 8100 massrate 135 overlapcheck yes all_in yes vel constant 0.75 0  0          insertion_face ins_mesh_con extrude_length 0.08
 
 
 ###################################Dumping of the data for post-processing to visualize############################
@@ -248,14 +265,1762 @@ variable dumpstep equal 0.05/${dt}
 variable dumpstep equal 0.05/0.0001	
 
 
-#output settings, include total thermal energy
-compute       1 all erotate/sphere
-thermo_style  custom step atoms ke c_1 vol
-thermo        1000
-thermo_modify lost ignore norm no
 
 
-run    1
-Setting up run at Wed Mar 15 19:20:19 2023
+run    	1
+Setting up run at Thu Mar 16 17:52:13 2023
 
-ERROR: Face defined as planar face is in fact not planar. You might want to check the 'curvature' setting (../tri_mesh_planar.cpp:71)
+WARNING: Fix mesh: Mesh contains highly skewed element, moving mesh (if used) will not parallelize well (../surface_mesh_I.h:657)
+WARNING: Fix mesh: Mesh contains highly skewed element, moving mesh (if used) will not parallelize well (../surface_mesh_I.h:657)
+INFO: Particle insertion ins: 14662.926256 particles every 1066 steps - particle rate 137550.902965, (mass rate 1.350000e+02)
+      8253054 particles (mass 8.100000e+03) within 599092 steps
+Memory usage per processor = 14.2307 Mbytes
+    Step    Atoms         KinEng            CPU 
+       0        0              0              0 
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 1
+ - a total of 10 particle templates (mass 5.790584e-02) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+       1       10    0.016286016     0.23845823 
+Loop time of 0.238468 on 6 procs for 1 steps with 10 atoms, finish time Thu Mar 16 17:52:14 2023
+
+
+Pair  time (%) = 3.6625e-06 (0.00153585)
+Neigh time (%) = 6.89465e-05 (0.0289123)
+Comm  time (%) = 0.00102135 (0.428299)
+Outpt time (%) = 0.00464657 (1.94851)
+Other time (%) = 0.232727 (97.5927)
+
+Nlocal:    1.66667 ave 5 max 0 min
+Histogram: 4 0 0 0 0 0 0 0 0 2
+Nghost:    1.66667 ave 5 max 0 min
+Histogram: 4 0 0 0 0 0 0 0 0 2
+Neighs:    1.33333 ave 4 max 0 min
+Histogram: 4 0 0 0 0 0 0 0 0 2
+
+Total # of neighbors = 8
+Ave neighs/atom = 0.8
+Neighbor list builds = 1
+Dangerous builds = 0
+dump   	dmpparticle all custom/vtk ${dumpstep} post/particles_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
+dump   	dmpparticle all custom/vtk 500 post/particles_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
+dump   	dumpfunnel all mesh/stl ${dumpstep} post/funnel*.stl funnel
+dump   	dumpfunnel all mesh/stl 500 post/funnel*.stl funnel
+dump	dumpscrew all mesh/stl ${dumpstep} post/screw*.stl screw screw_inv
+dump	dumpscrew all mesh/stl 500 post/screw*.stl screw screw_inv
+
+#run simulation
+run     ${fillsteps}
+run     600000
+Setting up run at Thu Mar 16 17:52:14 2023
+
+Memory usage per processor = 14.2307 Mbytes
+    Step    Atoms         KinEng            CPU 
+       1       10    0.016286016              0 
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 1067
+ - a total of 19 particle templates (mass 1.100211e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 2133
+ - a total of 27 particle templates (mass 1.563458e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 3199
+ - a total of 36 particle templates (mass 2.084610e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 4265
+ - a total of 44 particle templates (mass 2.547857e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 5331
+ - a total of 53 particle templates (mass 3.069009e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 6397
+ - a total of 62 particle templates (mass 3.590162e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 7463
+ - a total of 70 particle templates (mass 4.053409e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 8529
+ - a total of 78 particle templates (mass 4.516655e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 9595
+ - a total of 86 particle templates (mass 4.979902e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 10661
+ - a total of 93 particle templates (mass 5.385243e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 11727
+ - a total of 102 particle templates (mass 5.906395e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 12793
+ - a total of 110 particle templates (mass 6.369642e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 13859
+ - a total of 118 particle templates (mass 6.832889e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 14925
+ - a total of 127 particle templates (mass 7.354041e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 15991
+ - a total of 135 particle templates (mass 7.817288e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 17057
+ - a total of 144 particle templates (mass 8.338440e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 18123
+ - a total of 151 particle templates (mass 8.743781e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 19189
+ - a total of 160 particle templates (mass 9.264934e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 20255
+ - a total of 167 particle templates (mass 9.670275e-01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 21321
+ - a total of 176 particle templates (mass 1.019143e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 22387
+ - a total of 185 particle templates (mass 1.071258e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 23453
+ - a total of 195 particle templates (mass 1.129164e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 24519
+ - a total of 202 particle templates (mass 1.169698e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 25585
+ - a total of 211 particle templates (mass 1.221813e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 26651
+ - a total of 219 particle templates (mass 1.268138e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 27717
+ - a total of 226 particle templates (mass 1.308672e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 28783
+ - a total of 235 particle templates (mass 1.360787e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 29849
+ - a total of 243 particle templates (mass 1.407112e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 30915
+ - a total of 252 particle templates (mass 1.459227e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 31981
+ - a total of 261 particle templates (mass 1.511342e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 33047
+ - a total of 268 particle templates (mass 1.551876e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 34113
+ - a total of 277 particle templates (mass 1.603992e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 35179
+ - a total of 287 particle templates (mass 1.661897e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 36245
+ - a total of 295 particle templates (mass 1.708222e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 37311
+ - a total of 304 particle templates (mass 1.760337e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 38377
+ - a total of 313 particle templates (mass 1.812453e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 39443
+ - a total of 321 particle templates (mass 1.858777e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 40509
+ - a total of 329 particle templates (mass 1.905102e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 41575
+ - a total of 338 particle templates (mass 1.957217e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 42641
+ - a total of 346 particle templates (mass 2.003542e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 43707
+ - a total of 354 particle templates (mass 2.049867e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 44773
+ - a total of 363 particle templates (mass 2.101982e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 45839
+ - a total of 372 particle templates (mass 2.154097e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 46905
+ - a total of 380 particle templates (mass 2.200422e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 47971
+ - a total of 389 particle templates (mass 2.252537e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 49037
+ - a total of 398 particle templates (mass 2.304652e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 50103
+ - a total of 405 particle templates (mass 2.345186e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 51169
+ - a total of 412 particle templates (mass 2.385720e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 52235
+ - a total of 420 particle templates (mass 2.432045e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 53301
+ - a total of 428 particle templates (mass 2.478370e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 54367
+ - a total of 436 particle templates (mass 2.524694e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 55433
+ - a total of 444 particle templates (mass 2.571019e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 56499
+ - a total of 452 particle templates (mass 2.617344e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 57565
+ - a total of 461 particle templates (mass 2.669459e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 58631
+ - a total of 470 particle templates (mass 2.721574e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 59697
+ - a total of 479 particle templates (mass 2.773690e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 60763
+ - a total of 487 particle templates (mass 2.820014e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 61829
+ - a total of 494 particle templates (mass 2.860548e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 62895
+ - a total of 502 particle templates (mass 2.906873e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 63961
+ - a total of 509 particle templates (mass 2.947407e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 65027
+ - a total of 518 particle templates (mass 2.999522e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 66093
+ - a total of 526 particle templates (mass 3.045847e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 67159
+ - a total of 536 particle templates (mass 3.103753e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 68225
+ - a total of 545 particle templates (mass 3.155868e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 69291
+ - a total of 552 particle templates (mass 3.196402e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 70357
+ - a total of 561 particle templates (mass 3.248517e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 71423
+ - a total of 570 particle templates (mass 3.300633e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 72489
+ - a total of 577 particle templates (mass 3.341167e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 73555
+ - a total of 585 particle templates (mass 3.387491e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 74621
+ - a total of 592 particle templates (mass 3.428025e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 75687
+ - a total of 602 particle templates (mass 3.485931e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 76753
+ - a total of 610 particle templates (mass 3.532256e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 77819
+ - a total of 618 particle templates (mass 3.578581e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 78885
+ - a total of 626 particle templates (mass 3.624905e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 79951
+ - a total of 636 particle templates (mass 3.682811e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 81017
+ - a total of 643 particle templates (mass 3.723345e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 82083
+ - a total of 651 particle templates (mass 3.769670e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 83149
+ - a total of 660 particle templates (mass 3.821785e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 84215
+ - a total of 668 particle templates (mass 3.868110e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 85281
+ - a total of 676 particle templates (mass 3.914434e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 86347
+ - a total of 685 particle templates (mass 3.966550e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 87413
+ - a total of 693 particle templates (mass 4.012874e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 88479
+ - a total of 699 particle templates (mass 4.047618e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 11 particle templates (mass 6.369642e-02) at step 89545
+ - a total of 710 particle templates (mass 4.111314e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 90611
+ - a total of 719 particle templates (mass 4.163430e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 91677
+ - a total of 727 particle templates (mass 4.209754e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 92743
+ - a total of 735 particle templates (mass 4.256079e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 93809
+ - a total of 743 particle templates (mass 4.302404e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 94875
+ - a total of 752 particle templates (mass 4.354519e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 95941
+ - a total of 760 particle templates (mass 4.400844e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 97007
+ - a total of 767 particle templates (mass 4.441378e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 98073
+ - a total of 775 particle templates (mass 4.487702e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 99139
+ - a total of 783 particle templates (mass 4.534027e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 100205
+ - a total of 791 particle templates (mass 4.580352e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 101271
+ - a total of 798 particle templates (mass 4.620886e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 102337
+ - a total of 806 particle templates (mass 4.667210e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 103403
+ - a total of 814 particle templates (mass 4.713535e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 104469
+ - a total of 823 particle templates (mass 4.765650e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 105535
+ - a total of 832 particle templates (mass 4.817766e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 106601
+ - a total of 840 particle templates (mass 4.864090e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 107667
+ - a total of 848 particle templates (mass 4.910415e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 108733
+ - a total of 856 particle templates (mass 4.956740e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 109799
+ - a total of 865 particle templates (mass 5.008855e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 110865
+ - a total of 873 particle templates (mass 5.055179e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 111931
+ - a total of 880 particle templates (mass 5.095714e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 112997
+ - a total of 888 particle templates (mass 5.142038e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 114063
+ - a total of 896 particle templates (mass 5.188363e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 115129
+ - a total of 905 particle templates (mass 5.240478e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 116195
+ - a total of 912 particle templates (mass 5.281012e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 117261
+ - a total of 920 particle templates (mass 5.327337e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 118327
+ - a total of 928 particle templates (mass 5.373662e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 119393
+ - a total of 936 particle templates (mass 5.419986e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 120459
+ - a total of 945 particle templates (mass 5.472101e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 121525
+ - a total of 953 particle templates (mass 5.518426e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 122591
+ - a total of 962 particle templates (mass 5.570541e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 123657
+ - a total of 970 particle templates (mass 5.616866e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 124723
+ - a total of 978 particle templates (mass 5.663191e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 125789
+ - a total of 986 particle templates (mass 5.709515e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 126855
+ - a total of 996 particle templates (mass 5.767421e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 127921
+ - a total of 1004 particle templates (mass 5.813746e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 128987
+ - a total of 1014 particle templates (mass 5.871652e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 130053
+ - a total of 1023 particle templates (mass 5.923767e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 131119
+ - a total of 1031 particle templates (mass 5.970092e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 132185
+ - a total of 1040 particle templates (mass 6.022207e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 133251
+ - a total of 1048 particle templates (mass 6.068532e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 134317
+ - a total of 1056 particle templates (mass 6.114856e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 135383
+ - a total of 1065 particle templates (mass 6.166972e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 136449
+ - a total of 1073 particle templates (mass 6.213296e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 137515
+ - a total of 1082 particle templates (mass 6.265411e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 138581
+ - a total of 1090 particle templates (mass 6.311736e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 139647
+ - a total of 1097 particle templates (mass 6.352270e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 140713
+ - a total of 1105 particle templates (mass 6.398595e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 141779
+ - a total of 1113 particle templates (mass 6.444920e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 142845
+ - a total of 1122 particle templates (mass 6.497035e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 143911
+ - a total of 1129 particle templates (mass 6.537569e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 144977
+ - a total of 1136 particle templates (mass 6.578103e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 146043
+ - a total of 1146 particle templates (mass 6.636009e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 147109
+ - a total of 1154 particle templates (mass 6.682333e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 148175
+ - a total of 1163 particle templates (mass 6.734449e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 149241
+ - a total of 1171 particle templates (mass 6.780773e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 150307
+ - a total of 1179 particle templates (mass 6.827098e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 151373
+ - a total of 1187 particle templates (mass 6.873423e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 152439
+ - a total of 1195 particle templates (mass 6.919747e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 153505
+ - a total of 1202 particle templates (mass 6.960281e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 154571
+ - a total of 1211 particle templates (mass 7.012397e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 155637
+ - a total of 1219 particle templates (mass 7.058721e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 156703
+ - a total of 1226 particle templates (mass 7.099255e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 157769
+ - a total of 1235 particle templates (mass 7.151371e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 158835
+ - a total of 1243 particle templates (mass 7.197695e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 159901
+ - a total of 1251 particle templates (mass 7.244020e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 160967
+ - a total of 1259 particle templates (mass 7.290345e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 162033
+ - a total of 1267 particle templates (mass 7.336669e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 163099
+ - a total of 1275 particle templates (mass 7.382994e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 164165
+ - a total of 1284 particle templates (mass 7.435109e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 165231
+ - a total of 1292 particle templates (mass 7.481434e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 166297
+ - a total of 1301 particle templates (mass 7.533549e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 167363
+ - a total of 1309 particle templates (mass 7.579874e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 168429
+ - a total of 1317 particle templates (mass 7.626199e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 169495
+ - a total of 1325 particle templates (mass 7.672523e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 170561
+ - a total of 1333 particle templates (mass 7.718848e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 171627
+ - a total of 1340 particle templates (mass 7.759382e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 172693
+ - a total of 1348 particle templates (mass 7.805707e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 173759
+ - a total of 1357 particle templates (mass 7.857822e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 174825
+ - a total of 1366 particle templates (mass 7.909937e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 175891
+ - a total of 1374 particle templates (mass 7.956262e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 176957
+ - a total of 1384 particle templates (mass 8.014168e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 178023
+ - a total of 1392 particle templates (mass 8.060492e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 179089
+ - a total of 1401 particle templates (mass 8.112608e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 180155
+ - a total of 1410 particle templates (mass 8.164723e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 181221
+ - a total of 1416 particle templates (mass 8.199466e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 182287
+ - a total of 1424 particle templates (mass 8.245791e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 183353
+ - a total of 1433 particle templates (mass 8.297906e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 184419
+ - a total of 1441 particle templates (mass 8.344231e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 185485
+ - a total of 1449 particle templates (mass 8.390556e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 186551
+ - a total of 1458 particle templates (mass 8.442671e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 187617
+ - a total of 1466 particle templates (mass 8.488996e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 188683
+ - a total of 1474 particle templates (mass 8.535320e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 189749
+ - a total of 1482 particle templates (mass 8.581645e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 190815
+ - a total of 1490 particle templates (mass 8.627970e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 191881
+ - a total of 1498 particle templates (mass 8.674294e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 192947
+ - a total of 1506 particle templates (mass 8.720619e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 194013
+ - a total of 1514 particle templates (mass 8.766944e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 195079
+ - a total of 1522 particle templates (mass 8.813268e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 196145
+ - a total of 1530 particle templates (mass 8.859593e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 197211
+ - a total of 1539 particle templates (mass 8.911708e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 198277
+ - a total of 1548 particle templates (mass 8.963823e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 199343
+ - a total of 1555 particle templates (mass 9.004357e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 200409
+ - a total of 1562 particle templates (mass 9.044892e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 201475
+ - a total of 1570 particle templates (mass 9.091216e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 202541
+ - a total of 1578 particle templates (mass 9.137541e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 203607
+ - a total of 1586 particle templates (mass 9.183866e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 204673
+ - a total of 1595 particle templates (mass 9.235981e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 205739
+ - a total of 1603 particle templates (mass 9.282305e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 206805
+ - a total of 1610 particle templates (mass 9.322840e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 207871
+ - a total of 1618 particle templates (mass 9.369164e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 208937
+ - a total of 1626 particle templates (mass 9.415489e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 210003
+ - a total of 1635 particle templates (mass 9.467604e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 211069
+ - a total of 1643 particle templates (mass 9.513929e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 212135
+ - a total of 1651 particle templates (mass 9.560253e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 213201
+ - a total of 1658 particle templates (mass 9.600788e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 214267
+ - a total of 1667 particle templates (mass 9.652903e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 215333
+ - a total of 1675 particle templates (mass 9.699227e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 216399
+ - a total of 1683 particle templates (mass 9.745552e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 217465
+ - a total of 1690 particle templates (mass 9.786086e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 218531
+ - a total of 1699 particle templates (mass 9.838202e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 219597
+ - a total of 1708 particle templates (mass 9.890317e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 220663
+ - a total of 1716 particle templates (mass 9.936641e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 221729
+ - a total of 1724 particle templates (mass 9.982966e+00) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 222795
+ - a total of 1732 particle templates (mass 1.002929e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 223861
+ - a total of 1740 particle templates (mass 1.007562e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 224927
+ - a total of 1750 particle templates (mass 1.013352e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 225993
+ - a total of 1758 particle templates (mass 1.017985e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 227059
+ - a total of 1766 particle templates (mass 1.022617e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 228125
+ - a total of 1774 particle templates (mass 1.027250e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 229191
+ - a total of 1783 particle templates (mass 1.032461e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 230257
+ - a total of 1791 particle templates (mass 1.037094e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 231323
+ - a total of 1799 particle templates (mass 1.041726e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 232389
+ - a total of 1807 particle templates (mass 1.046358e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 233455
+ - a total of 1815 particle templates (mass 1.050991e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 234521
+ - a total of 1823 particle templates (mass 1.055623e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 235587
+ - a total of 1832 particle templates (mass 1.060835e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 236653
+ - a total of 1840 particle templates (mass 1.065467e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 237719
+ - a total of 1847 particle templates (mass 1.069521e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 238785
+ - a total of 1856 particle templates (mass 1.074732e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 239851
+ - a total of 1866 particle templates (mass 1.080523e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 240917
+ - a total of 1873 particle templates (mass 1.084576e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 241983
+ - a total of 1880 particle templates (mass 1.088630e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 243049
+ - a total of 1888 particle templates (mass 1.093262e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 244115
+ - a total of 1897 particle templates (mass 1.098474e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 245181
+ - a total of 1905 particle templates (mass 1.103106e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 246247
+ - a total of 1912 particle templates (mass 1.107160e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 247313
+ - a total of 1922 particle templates (mass 1.112950e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 248379
+ - a total of 1931 particle templates (mass 1.118162e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 249445
+ - a total of 1939 particle templates (mass 1.122794e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 250511
+ - a total of 1948 particle templates (mass 1.128006e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 251577
+ - a total of 1957 particle templates (mass 1.133217e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 252643
+ - a total of 1965 particle templates (mass 1.137850e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 253709
+ - a total of 1973 particle templates (mass 1.142482e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 254775
+ - a total of 1982 particle templates (mass 1.147694e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 255841
+ - a total of 1989 particle templates (mass 1.151747e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 256907
+ - a total of 1997 particle templates (mass 1.156380e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 257973
+ - a total of 2003 particle templates (mass 1.159854e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 259039
+ - a total of 2011 particle templates (mass 1.164486e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 260105
+ - a total of 2018 particle templates (mass 1.168540e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 261171
+ - a total of 2028 particle templates (mass 1.174330e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 262237
+ - a total of 2037 particle templates (mass 1.179542e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 263303
+ - a total of 2045 particle templates (mass 1.184174e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 264369
+ - a total of 2054 particle templates (mass 1.189386e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 265435
+ - a total of 2061 particle templates (mass 1.193439e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 266501
+ - a total of 2069 particle templates (mass 1.198072e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 267567
+ - a total of 2078 particle templates (mass 1.203283e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 268633
+ - a total of 2088 particle templates (mass 1.209074e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 269699
+ - a total of 2096 particle templates (mass 1.213706e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 270765
+ - a total of 2104 particle templates (mass 1.218339e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 271831
+ - a total of 2113 particle templates (mass 1.223550e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 272897
+ - a total of 2122 particle templates (mass 1.228762e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 273963
+ - a total of 2130 particle templates (mass 1.233394e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 275029
+ - a total of 2138 particle templates (mass 1.238027e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 276095
+ - a total of 2146 particle templates (mass 1.242659e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 277161
+ - a total of 2154 particle templates (mass 1.247292e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 278227
+ - a total of 2163 particle templates (mass 1.252503e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 279293
+ - a total of 2171 particle templates (mass 1.257136e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 280359
+ - a total of 2179 particle templates (mass 1.261768e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 281425
+ - a total of 2187 particle templates (mass 1.266401e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 282491
+ - a total of 2195 particle templates (mass 1.271033e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 283557
+ - a total of 2204 particle templates (mass 1.276245e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 284623
+ - a total of 2212 particle templates (mass 1.280877e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 285689
+ - a total of 2221 particle templates (mass 1.286089e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 286755
+ - a total of 2230 particle templates (mass 1.291300e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 287821
+ - a total of 2240 particle templates (mass 1.297091e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 288887
+ - a total of 2249 particle templates (mass 1.302302e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 289953
+ - a total of 2256 particle templates (mass 1.306356e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 291019
+ - a total of 2264 particle templates (mass 1.310988e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 292085
+ - a total of 2273 particle templates (mass 1.316200e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 293151
+ - a total of 2283 particle templates (mass 1.321990e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 294217
+ - a total of 2291 particle templates (mass 1.326623e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 295283
+ - a total of 2300 particle templates (mass 1.331834e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 296349
+ - a total of 2308 particle templates (mass 1.336467e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 297415
+ - a total of 2316 particle templates (mass 1.341099e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 298481
+ - a total of 2324 particle templates (mass 1.345732e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 299547
+ - a total of 2332 particle templates (mass 1.350364e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 300613
+ - a total of 2341 particle templates (mass 1.355576e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 301679
+ - a total of 2350 particle templates (mass 1.360787e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 302745
+ - a total of 2359 particle templates (mass 1.365999e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 303811
+ - a total of 2368 particle templates (mass 1.371210e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 304877
+ - a total of 2377 particle templates (mass 1.376422e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 305943
+ - a total of 2385 particle templates (mass 1.381054e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 307009
+ - a total of 2393 particle templates (mass 1.385687e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 308075
+ - a total of 2400 particle templates (mass 1.389740e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 309141
+ - a total of 2408 particle templates (mass 1.394373e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 310207
+ - a total of 2416 particle templates (mass 1.399005e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 311273
+ - a total of 2424 particle templates (mass 1.403637e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 312339
+ - a total of 2432 particle templates (mass 1.408270e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 313405
+ - a total of 2441 particle templates (mass 1.413481e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 314471
+ - a total of 2449 particle templates (mass 1.418114e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 315537
+ - a total of 2459 particle templates (mass 1.423905e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 316603
+ - a total of 2468 particle templates (mass 1.429116e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 317669
+ - a total of 2476 particle templates (mass 1.433748e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 318735
+ - a total of 2484 particle templates (mass 1.438381e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 319801
+ - a total of 2492 particle templates (mass 1.443013e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 320867
+ - a total of 2499 particle templates (mass 1.447067e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 321933
+ - a total of 2507 particle templates (mass 1.451699e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 322999
+ - a total of 2515 particle templates (mass 1.456332e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 324065
+ - a total of 2524 particle templates (mass 1.461543e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 325131
+ - a total of 2533 particle templates (mass 1.466755e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 326197
+ - a total of 2542 particle templates (mass 1.471966e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 327263
+ - a total of 2550 particle templates (mass 1.476599e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 328329
+ - a total of 2558 particle templates (mass 1.481231e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 329395
+ - a total of 2566 particle templates (mass 1.485864e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 330461
+ - a total of 2574 particle templates (mass 1.490496e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 331527
+ - a total of 2582 particle templates (mass 1.495129e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 332593
+ - a total of 2591 particle templates (mass 1.500340e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 333659
+ - a total of 2600 particle templates (mass 1.505552e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 334725
+ - a total of 2608 particle templates (mass 1.510184e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 335791
+ - a total of 2616 particle templates (mass 1.514817e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 336857
+ - a total of 2623 particle templates (mass 1.518870e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 337923
+ - a total of 2631 particle templates (mass 1.523503e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 338989
+ - a total of 2640 particle templates (mass 1.528714e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 340055
+ - a total of 2649 particle templates (mass 1.533926e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 341121
+ - a total of 2658 particle templates (mass 1.539137e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 342187
+ - a total of 2665 particle templates (mass 1.543191e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 343253
+ - a total of 2674 particle templates (mass 1.548402e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 344319
+ - a total of 2683 particle templates (mass 1.553614e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 345385
+ - a total of 2691 particle templates (mass 1.558246e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 346451
+ - a total of 2698 particle templates (mass 1.562299e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 347517
+ - a total of 2705 particle templates (mass 1.566353e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 348583
+ - a total of 2714 particle templates (mass 1.571564e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 349649
+ - a total of 2723 particle templates (mass 1.576776e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 350715
+ - a total of 2729 particle templates (mass 1.580250e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 351781
+ - a total of 2736 particle templates (mass 1.584304e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 352847
+ - a total of 2744 particle templates (mass 1.588936e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 353913
+ - a total of 2753 particle templates (mass 1.594148e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 354979
+ - a total of 2761 particle templates (mass 1.598780e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 356045
+ - a total of 2769 particle templates (mass 1.603413e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 357111
+ - a total of 2778 particle templates (mass 1.608624e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 358177
+ - a total of 2787 particle templates (mass 1.613836e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 359243
+ - a total of 2795 particle templates (mass 1.618468e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 360309
+ - a total of 2804 particle templates (mass 1.623680e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 361375
+ - a total of 2812 particle templates (mass 1.628312e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 362441
+ - a total of 2820 particle templates (mass 1.632945e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 363507
+ - a total of 2827 particle templates (mass 1.636998e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 364573
+ - a total of 2836 particle templates (mass 1.642210e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 365639
+ - a total of 2844 particle templates (mass 1.646842e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 366705
+ - a total of 2853 particle templates (mass 1.652053e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 367771
+ - a total of 2862 particle templates (mass 1.657265e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 368837
+ - a total of 2870 particle templates (mass 1.661897e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 369903
+ - a total of 2877 particle templates (mass 1.665951e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 370969
+ - a total of 2886 particle templates (mass 1.671162e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 372035
+ - a total of 2893 particle templates (mass 1.675216e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 373101
+ - a total of 2901 particle templates (mass 1.679848e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 374167
+ - a total of 2908 particle templates (mass 1.683902e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 375233
+ - a total of 2915 particle templates (mass 1.687955e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 376299
+ - a total of 2921 particle templates (mass 1.691429e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 377365
+ - a total of 2931 particle templates (mass 1.697220e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 378431
+ - a total of 2939 particle templates (mass 1.701853e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 379497
+ - a total of 2948 particle templates (mass 1.707064e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 380563
+ - a total of 2956 particle templates (mass 1.711697e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 381629
+ - a total of 2964 particle templates (mass 1.716329e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 382695
+ - a total of 2973 particle templates (mass 1.721540e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 383761
+ - a total of 2982 particle templates (mass 1.726752e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 384827
+ - a total of 2989 particle templates (mass 1.730805e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 385893
+ - a total of 2997 particle templates (mass 1.735438e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 386959
+ - a total of 3006 particle templates (mass 1.740649e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 388025
+ - a total of 3014 particle templates (mass 1.745282e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 389091
+ - a total of 3020 particle templates (mass 1.748756e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 390157
+ - a total of 3028 particle templates (mass 1.753389e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 391223
+ - a total of 3037 particle templates (mass 1.758600e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 392289
+ - a total of 3045 particle templates (mass 1.763233e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 393355
+ - a total of 3052 particle templates (mass 1.767286e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 394421
+ - a total of 3060 particle templates (mass 1.771919e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 395487
+ - a total of 3068 particle templates (mass 1.776551e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 396553
+ - a total of 3076 particle templates (mass 1.781184e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 397619
+ - a total of 3084 particle templates (mass 1.785816e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 398685
+ - a total of 3092 particle templates (mass 1.790448e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 399751
+ - a total of 3101 particle templates (mass 1.795660e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 400817
+ - a total of 3109 particle templates (mass 1.800292e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 401883
+ - a total of 3118 particle templates (mass 1.805504e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 402949
+ - a total of 3127 particle templates (mass 1.810715e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 404015
+ - a total of 3136 particle templates (mass 1.815927e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 405081
+ - a total of 3143 particle templates (mass 1.819980e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 406147
+ - a total of 3153 particle templates (mass 1.825771e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 407213
+ - a total of 3161 particle templates (mass 1.830403e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 408279
+ - a total of 3169 particle templates (mass 1.835036e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 409345
+ - a total of 3177 particle templates (mass 1.839668e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 410411
+ - a total of 3185 particle templates (mass 1.844301e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 411477
+ - a total of 3194 particle templates (mass 1.849512e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 412543
+ - a total of 3202 particle templates (mass 1.854145e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 413609
+ - a total of 3210 particle templates (mass 1.858777e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 414675
+ - a total of 3219 particle templates (mass 1.863989e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 415741
+ - a total of 3226 particle templates (mass 1.868042e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 416807
+ - a total of 3234 particle templates (mass 1.872675e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 417873
+ - a total of 3242 particle templates (mass 1.877307e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 418939
+ - a total of 3250 particle templates (mass 1.881940e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 420005
+ - a total of 3258 particle templates (mass 1.886572e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 421071
+ - a total of 3267 particle templates (mass 1.891784e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 422137
+ - a total of 3275 particle templates (mass 1.896416e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 423203
+ - a total of 3283 particle templates (mass 1.901049e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 424269
+ - a total of 3290 particle templates (mass 1.905102e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 425335
+ - a total of 3299 particle templates (mass 1.910314e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 426401
+ - a total of 3306 particle templates (mass 1.914367e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 427467
+ - a total of 3314 particle templates (mass 1.918999e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 428533
+ - a total of 3322 particle templates (mass 1.923632e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 429599
+ - a total of 3331 particle templates (mass 1.928843e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 430665
+ - a total of 3340 particle templates (mass 1.934055e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 431731
+ - a total of 3348 particle templates (mass 1.938687e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 432797
+ - a total of 3356 particle templates (mass 1.943320e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 433863
+ - a total of 3363 particle templates (mass 1.947373e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 434929
+ - a total of 3371 particle templates (mass 1.952006e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 435995
+ - a total of 3380 particle templates (mass 1.957217e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 437061
+ - a total of 3386 particle templates (mass 1.960692e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 438127
+ - a total of 3394 particle templates (mass 1.965324e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 439193
+ - a total of 3402 particle templates (mass 1.969957e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 440259
+ - a total of 3410 particle templates (mass 1.974589e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 441325
+ - a total of 3417 particle templates (mass 1.978642e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 442391
+ - a total of 3425 particle templates (mass 1.983275e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 443457
+ - a total of 3431 particle templates (mass 1.986749e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 444523
+ - a total of 3440 particle templates (mass 1.991961e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 445589
+ - a total of 3449 particle templates (mass 1.997172e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 446655
+ - a total of 3457 particle templates (mass 2.001805e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 447721
+ - a total of 3464 particle templates (mass 2.005858e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 448787
+ - a total of 3474 particle templates (mass 2.011649e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 449853
+ - a total of 3482 particle templates (mass 2.016281e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 450919
+ - a total of 3490 particle templates (mass 2.020914e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 451985
+ - a total of 3499 particle templates (mass 2.026125e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 453051
+ - a total of 3506 particle templates (mass 2.030179e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 454117
+ - a total of 3515 particle templates (mass 2.035390e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 455183
+ - a total of 3523 particle templates (mass 2.040023e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 456249
+ - a total of 3531 particle templates (mass 2.044655e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 457315
+ - a total of 3538 particle templates (mass 2.048708e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 458381
+ - a total of 3546 particle templates (mass 2.053341e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 459447
+ - a total of 3554 particle templates (mass 2.057973e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 460513
+ - a total of 3562 particle templates (mass 2.062606e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 461579
+ - a total of 3570 particle templates (mass 2.067238e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 462645
+ - a total of 3579 particle templates (mass 2.072450e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 463711
+ - a total of 3588 particle templates (mass 2.077661e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 464777
+ - a total of 3595 particle templates (mass 2.081715e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 465843
+ - a total of 3603 particle templates (mass 2.086347e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 466909
+ - a total of 3612 particle templates (mass 2.091559e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 467975
+ - a total of 3620 particle templates (mass 2.096191e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 469041
+ - a total of 3627 particle templates (mass 2.100245e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 470107
+ - a total of 3635 particle templates (mass 2.104877e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 471173
+ - a total of 3644 particle templates (mass 2.110089e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 472239
+ - a total of 3653 particle templates (mass 2.115300e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 473305
+ - a total of 3662 particle templates (mass 2.120512e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 474371
+ - a total of 3671 particle templates (mass 2.125723e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 475437
+ - a total of 3678 particle templates (mass 2.129777e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 476503
+ - a total of 3686 particle templates (mass 2.134409e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 477569
+ - a total of 3695 particle templates (mass 2.139621e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 478635
+ - a total of 3702 particle templates (mass 2.143674e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 479701
+ - a total of 3712 particle templates (mass 2.149465e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 480767
+ - a total of 3720 particle templates (mass 2.154097e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 481833
+ - a total of 3727 particle templates (mass 2.158150e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 482899
+ - a total of 3735 particle templates (mass 2.162783e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 483965
+ - a total of 3743 particle templates (mass 2.167415e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 485031
+ - a total of 3751 particle templates (mass 2.172048e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 486097
+ - a total of 3758 particle templates (mass 2.176101e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 487163
+ - a total of 3767 particle templates (mass 2.181313e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 488229
+ - a total of 3777 particle templates (mass 2.187103e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 489295
+ - a total of 3785 particle templates (mass 2.191736e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 490361
+ - a total of 3792 particle templates (mass 2.195789e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 491427
+ - a total of 3800 particle templates (mass 2.200422e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 492493
+ - a total of 3808 particle templates (mass 2.205054e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 493559
+ - a total of 3818 particle templates (mass 2.210845e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 494625
+ - a total of 3826 particle templates (mass 2.215477e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 495691
+ - a total of 3836 particle templates (mass 2.221268e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 496757
+ - a total of 3845 particle templates (mass 2.226479e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 497823
+ - a total of 3854 particle templates (mass 2.231691e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 498889
+ - a total of 3863 particle templates (mass 2.236902e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 499955
+ - a total of 3871 particle templates (mass 2.241535e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 501021
+ - a total of 3879 particle templates (mass 2.246167e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 502087
+ - a total of 3887 particle templates (mass 2.250800e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 503153
+ - a total of 3894 particle templates (mass 2.254853e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 504219
+ - a total of 3902 particle templates (mass 2.259486e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 505285
+ - a total of 3911 particle templates (mass 2.264697e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 506351
+ - a total of 3918 particle templates (mass 2.268751e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 507417
+ - a total of 3926 particle templates (mass 2.273383e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 508483
+ - a total of 3935 particle templates (mass 2.278595e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 509549
+ - a total of 3944 particle templates (mass 2.283806e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 510615
+ - a total of 3952 particle templates (mass 2.288439e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 511681
+ - a total of 3960 particle templates (mass 2.293071e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 512747
+ - a total of 3966 particle templates (mass 2.296545e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 513813
+ - a total of 3975 particle templates (mass 2.301757e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 514879
+ - a total of 3983 particle templates (mass 2.306389e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 515945
+ - a total of 3991 particle templates (mass 2.311022e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 517011
+ - a total of 3999 particle templates (mass 2.315654e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 518077
+ - a total of 4006 particle templates (mass 2.319708e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 519143
+ - a total of 4014 particle templates (mass 2.324340e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 520209
+ - a total of 4023 particle templates (mass 2.329552e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 521275
+ - a total of 4032 particle templates (mass 2.334763e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 522341
+ - a total of 4040 particle templates (mass 2.339396e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 523407
+ - a total of 4049 particle templates (mass 2.344607e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 524473
+ - a total of 4057 particle templates (mass 2.349240e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 525539
+ - a total of 4065 particle templates (mass 2.353872e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 526605
+ - a total of 4073 particle templates (mass 2.358505e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 527671
+ - a total of 4081 particle templates (mass 2.363137e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 528737
+ - a total of 4090 particle templates (mass 2.368349e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 529803
+ - a total of 4098 particle templates (mass 2.372981e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 530869
+ - a total of 4107 particle templates (mass 2.378193e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 531935
+ - a total of 4115 particle templates (mass 2.382825e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 533001
+ - a total of 4125 particle templates (mass 2.388616e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 534067
+ - a total of 4133 particle templates (mass 2.393248e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 535133
+ - a total of 4142 particle templates (mass 2.398460e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 536199
+ - a total of 4150 particle templates (mass 2.403092e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 537265
+ - a total of 4159 particle templates (mass 2.408304e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 538331
+ - a total of 4167 particle templates (mass 2.412936e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 539397
+ - a total of 4176 particle templates (mass 2.418148e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 540463
+ - a total of 4184 particle templates (mass 2.422780e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 541529
+ - a total of 4193 particle templates (mass 2.427992e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 542595
+ - a total of 4201 particle templates (mass 2.432624e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 543661
+ - a total of 4210 particle templates (mass 2.437836e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 544727
+ - a total of 4219 particle templates (mass 2.443047e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 545793
+ - a total of 4228 particle templates (mass 2.448259e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 546859
+ - a total of 4236 particle templates (mass 2.452891e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 547925
+ - a total of 4244 particle templates (mass 2.457524e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 548991
+ - a total of 4252 particle templates (mass 2.462156e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 550057
+ - a total of 4260 particle templates (mass 2.466789e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 551123
+ - a total of 4268 particle templates (mass 2.471421e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 552189
+ - a total of 4276 particle templates (mass 2.476054e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 553255
+ - a total of 4282 particle templates (mass 2.479528e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 554321
+ - a total of 4290 particle templates (mass 2.484160e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 555387
+ - a total of 4298 particle templates (mass 2.488793e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 556453
+ - a total of 4306 particle templates (mass 2.493425e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 557519
+ - a total of 4314 particle templates (mass 2.498058e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 558585
+ - a total of 4323 particle templates (mass 2.503269e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 559651
+ - a total of 4332 particle templates (mass 2.508481e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 560717
+ - a total of 4341 particle templates (mass 2.513692e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 561783
+ - a total of 4349 particle templates (mass 2.518325e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 562849
+ - a total of 4357 particle templates (mass 2.522957e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 563915
+ - a total of 4364 particle templates (mass 2.527011e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 564981
+ - a total of 4373 particle templates (mass 2.532222e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 566047
+ - a total of 4381 particle templates (mass 2.536855e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 567113
+ - a total of 4389 particle templates (mass 2.541487e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 568179
+ - a total of 4398 particle templates (mass 2.546699e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 569245
+ - a total of 4407 particle templates (mass 2.551910e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 570311
+ - a total of 4415 particle templates (mass 2.556543e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 571377
+ - a total of 4423 particle templates (mass 2.561175e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 572443
+ - a total of 4430 particle templates (mass 2.565229e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 573509
+ - a total of 4439 particle templates (mass 2.570440e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 574575
+ - a total of 4447 particle templates (mass 2.575073e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 575641
+ - a total of 4455 particle templates (mass 2.579705e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 576707
+ - a total of 4464 particle templates (mass 2.584917e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 577773
+ - a total of 4472 particle templates (mass 2.589549e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 578839
+ - a total of 4480 particle templates (mass 2.594181e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 579905
+ - a total of 4488 particle templates (mass 2.598814e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 580971
+ - a total of 4498 particle templates (mass 2.604604e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 582037
+ - a total of 4506 particle templates (mass 2.609237e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 583103
+ - a total of 4516 particle templates (mass 2.615028e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 584169
+ - a total of 4525 particle templates (mass 2.620239e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 585235
+ - a total of 4533 particle templates (mass 2.624872e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 7 particle templates (mass 4.053409e-02) at step 586301
+ - a total of 4540 particle templates (mass 2.628925e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 587367
+ - a total of 4549 particle templates (mass 2.634136e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 588433
+ - a total of 4557 particle templates (mass 2.638769e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 589499
+ - a total of 4565 particle templates (mass 2.643401e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 590565
+ - a total of 4571 particle templates (mass 2.646876e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 591631
+ - a total of 4579 particle templates (mass 2.651508e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 592697
+ - a total of 4587 particle templates (mass 2.656141e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 593763
+ - a total of 4595 particle templates (mass 2.660773e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 10 particle templates (mass 5.790584e-02) at step 594829
+ - a total of 4605 particle templates (mass 2.666564e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 595895
+ - a total of 4613 particle templates (mass 2.671196e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 8 particle templates (mass 4.632467e-02) at step 596961
+ - a total of 4621 particle templates (mass 2.675829e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 9 particle templates (mass 5.211525e-02) at step 598027
+ - a total of 4630 particle templates (mass 2.681040e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+INFO: Particle insertion ins: inserted 6 particle templates (mass 3.474350e-02) at step 599093
+ - a total of 4636 particle templates (mass 2.684515e+01) inserted so far.
+WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
+  600001      528     0.32771917      2689.5535 
+Loop time of 2689.55 on 6 procs for 600000 steps with 528 atoms, finish time Thu Mar 16 18:37:03 2023
+
+
+Pair  time (%) = 21.3554 (0.794014)
+Neigh time (%) = 17.7263 (0.659079)
+Comm  time (%) = 477.306 (17.7467)
+Outpt time (%) = 26.1347 (0.971711)
+Other time (%) = 2147.03 (79.8285)
+
+Nlocal:    88 ave 294 max 0 min
+Histogram: 4 0 0 0 0 0 0 1 0 1
+Nghost:    23.3333 ave 79 max 0 min
+Histogram: 4 0 0 0 0 0 1 0 0 1
+Neighs:    330.167 ave 1185 max 0 min
+Histogram: 4 0 0 0 0 0 1 0 0 1
+
+Total # of neighbors = 1981
+Ave neighs/atom = 3.75189
+Neighbor list builds = 129464
+Dangerous builds = 0
+write_restart resrart/reactor.restart

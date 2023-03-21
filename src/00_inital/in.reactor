@@ -135,8 +135,7 @@ timestep ${dt}
 
 fix		integrator all nve/sphere			#default
 
-fix		gravi all gravity 9.81 vector 0.0 0.0 -1.0		
-#gravity of 9.81 m/s² in negative z direction
+fix		gravi all gravity 9.81 vector 0.0 0.0 -1.0	#gravity of 9.81 m/s² in negative z direction
 
 
 
@@ -169,17 +168,17 @@ fix 		walls 	all wall/gran model hertz tangential history rolling_friction epsd2
 
 ###################################Generation and Insertion of the particles#########################################
 
-fix		pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${density} radius constant ${radius1}	
+fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${density} radius constant ${radius1}	
 
-fix		pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${density} radius constant ${radius2}	
+fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${density} radius constant ${radius2}	
 
 fix 	pdd1 all particledistribution/discrete 32452867 ${nradii} pts1 ${frac1} pts2 ${frac2} 
 
-fix		ins_mesh all mesh/surface/planar file meshes/insertion_simple.stl  type 1 scale 0.001 
+fix	ins_mesh all mesh/surface/planar file meshes/insertion_simple.stl  type 1 scale 0.001 
 
 fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1 &
         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0 0 -0.75 &
-        insertion_face ins_mesh extrude_length 0.25
+        insertion_face ins_mesh extrude_length 0.2
 
 		
 		

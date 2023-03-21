@@ -1,0 +1,29 @@
+LIGGGHTS (Version LIGGGHTS-PUBLIC 3.8.0, compiled 2023-03-15-17:42:14 by weitinglinux, git commit 9fb7f67592be9304afca9cb6840892b3b7d048d6)
+# Define simulation box
+units si
+dimension 3
+atom_style granular
+boundary f f f
+atom_modify map array
+
+# Set particle properties
+variable radius1 equal 0.001
+variable radius2 equal 0.0015
+variable density1 equal 2000
+variable density2 equal 2500
+
+# Create particles
+region box block -0.1 0.1 -0.1 0.1 -0.1 0.1
+create_box 2 box
+Created orthogonal box = (-0.1 -0.1 -0.1) to (0.1 0.1 0.1)
+  1 by 2 by 2 MPI processor grid
+lattice fcc 0.01
+Lattice spacing in x,y,z = 0.01 0.01 0.01
+create_atoms 1 box
+Created 32000 atoms
+set group all diameter ${radius1}
+set group all diameter 0.001
+  32000 settings made for diameter
+mass * ${density1}
+mass * 2000
+ERROR: Cannot set mass for this atom style (../atom.cpp:1169)
