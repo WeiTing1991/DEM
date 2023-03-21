@@ -1,0 +1,50 @@
+
+No pressure setting! material might have some back flow.
+
+
+
+
+# Define the materials
+atom_style hybrid sphere
+# Define materials for coarse aggregates, fine aggregates, cement, and water
+# For example:
+#   - Coarse aggregates: density = 2600 kg/m^3, youngs_modulus = 50 GPa, poissons_ratio = 0.25, friction_coeff = 0.4
+#   - Fine aggregates: density = 2700 kg/m^3, youngs_modulus = 55 GPa, poissons_ratio = 0.25, friction_coeff = 0.35
+#   - Cement: density = 3100 kg/m^3, youngs_modulus = 40 GPa, poissons_ratio = 0.25, friction_coeff = 0.2
+#   - Water: density = 1000 kg/m^3, youngs_modulus = 2.1 GPa, poissons_ratio = 0.49, friction_coeff = 0.05
+
+# Define the geometry
+# Create a rectangular block of particles to represent the concrete sample
+# Randomly place particles of different materials within the block
+# Define appropriate inter-particle forces (e.g. Hertz-Mindlin contact model) and damping parameters
+
+# Define the simulation parameters
+# Set the timestep, number of timesteps, temperature, and any other relevant parameters
+
+# Run the simulation
+
+##########################################################
+
+# Define the materials
+atom_style sphere
+# Define materials for coarse aggregates and cement
+# For example:
+#   - Coarse aggregates: density = 2600 kg/m^3, youngs_modulus = 50 GPa, poissons_ratio = 0.25, friction_coeff = 0.4
+#   - Cement: density = 3100 kg/m^3, youngs_modulus = 40 GPa, poissons_ratio = 0.25, friction_coeff = 0.2
+
+# Define the geometry
+# Create two spheres to represent the particles
+# Set their positions and radii appropriately
+# Assign different materials to the particles
+
+# Define the simulation parameters
+# Set the timestep, number of timesteps, temperature, and any other relevant parameters
+
+# Run the simulation
+
+In this script, you can define two spheres to represent the particles, and set their positions and radii appropriately. You can assign different materials to the particles by defining the materials with the create_atoms command and specifying the material ID for each particle.
+
+You can then define the simulation parameters, such as the timestep, number of timesteps, temperature, and any other relevant parameters, and run the simulation.
+
+Keep in mind that this is a very simplified example and may not accurately represent the behavior of real concrete. For more accurate simulations, you may need to include more particles, define more complex geometries, and adjust the material properties accordingly.
+
