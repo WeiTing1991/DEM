@@ -16,7 +16,6 @@ More information is coming soon.
 * LIGGGHTS-PUBLIC 3.8
 
 ## __Installation__
----
 
 ```bash
 sudo apt-get install git
