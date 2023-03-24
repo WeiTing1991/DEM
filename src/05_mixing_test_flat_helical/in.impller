@@ -78,7 +78,7 @@ variable	density	equal	2700	        #kg/m³ #aggregate desnsity
 
 ##define the flowrate
                           
-variable        filltime	equal	10.0				#seconds
+variable        filltime	equal	60.0				#seconds
 
 variable	fillmass	equal	${density}*3	                #kg
 variable	fillmassrate	equal	${fillmass}/${filltime}	        #kg/s   
@@ -91,13 +91,17 @@ variable	fillsteps	equal	${filltime}/${dt}		#Transform time to iteration steps
 variable        screwSpeed      equal   60.0                             #rpm
 variable        screwPeriod     equal   ${screwSpeed}/60.0               #s/rev ,period of the srew rotation (time for 1 rotation)
 
-###################################TBC
+
 ####settle time####
 
-variable	settletime	equal	1 #sec
+variable	mixingTime	equal	60                              #sec
 
-variable	settlesteps	equal	${settletime}/${dt}		#Transform time to iteration steps
+variable	mixingSteps	equal	${mixingTime}/${dt}		#Transform time to iteration steps
 
+
+
+
+###################################TBC
 ####open parameter of the lid####
 
 variable	openvel		equal	0.4	#m/s
@@ -113,6 +117,10 @@ variable	dischargetime	equal	25 #seconds
 
 variable	dischargesteps	equal	${dischargetime}/${dt}	#Transform time to iteration steps
 ##################################
+
+
+
+
 
 ####Definition of simulationbox####
 
@@ -145,28 +153,27 @@ fix 	m5 all property/global coefficientRollingFriction peratomtypepair ${natoms}
 ###Generation and Loading of the Geometry####
 
 #load mesh from STL file. Type 2 for geometry. Scale down to transform mm to meters
-fix	funnel 		all mesh/surface file meshes/funnel.stl type 2 scale 0.001
-fix	pipe 		all mesh/surface file meshes/pipe.stl type 2 scale 0.001		
+fix	funnel 		all mesh/surface file meshes/funnel.stl type 2 scale 0.001 
 
-fix	screw 		all mesh/surface file meshes/impeller_1.stl type 2 scale 0.001 curvature 1e-5 curvature_tolerant yes
-fix	screw_inv 	all mesh/surface file meshes/impeller_inver_2.stl type 2 scale 0.001 curvature 1e-5 curvature_tolerant yes
+fix	screw 		all mesh/surface file meshes/impeller_hexical_1.stl type 2 scale 0.001 curvature 1e-5 curvature_tolerant yes
+fix	screw_inv 	all mesh/surface file meshes/impeller_hexical_inver_2.stl type 2 scale 0.001 curvature 1e-5 curvature_tolerant yes
 
-fix	walls 		all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 4 meshes funnel pipe screw screw_inv
+fix	walls 		all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 3 meshes funnel screw screw_inv
 
-fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 1 period ${screwPeriod} 
-fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 -1 period ${screwPeriod} 
+
 
 
 ####Generation and Insertion of the particles####
 
-fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${density} radius constant ${radius1}	
-fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${density} radius constant ${radius2}	
-fix 	pdd1 all particledistribution/discrete 32452867 ${nradii} pts1 ${frac1} pts2 ${frac2} 
+fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${density} radius constant ${radius2}		
+fix 	pdd1 all particledistribution/discrete 32452867 1 pts1 1
 
 fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con.stl  type 1 scale 0.001 
+#fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_acc.stl  type 1 scale 0.001 
+
 
 fix 	ins all insert/stream seed 86028157 distributiontemplate pdd1 &
-        mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0.75 0  0  &
+        mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant 0 0 -0.75 &
         insertion_face ins_mesh_con extrude_length 0.08
 
 		
@@ -187,9 +194,13 @@ run    	1
 dump   	dmpparticle all custom/vtk ${dumpstep} post/particles_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius 
 dump   	dumpfunnel all mesh/stl ${dumpstep} post/funnel*.stl funnel
 dump	dumpscrew all mesh/stl ${dumpstep} post/screw*.stl screw screw_inv
-dump	dumppipe all mesh/stl ${dumpstep} post/pipe*.stl pipe
-
 
 #Run simulation
-run     ${fillsteps}
+run     100000
+
+run     ${mixingSteps}
+fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 1 period ${screwPeriod} 
+fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 -1 period ${screwPeriod} 
+
+
 write_restart resrart/reactor.restart
