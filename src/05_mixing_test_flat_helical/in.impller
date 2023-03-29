@@ -83,14 +83,14 @@ variable	densityCon	equal	2700	        #kg/m³ #aggregate desnsity
 #Accelerator particles 
 
 variable	radiusAcc	equal	0.002	        #m 
-variable	densityAcc	equal	1200	        #kg/m³ 
+variable	densityAcc	equal	2700	        #kg/m³ 
 
 #filling parameters#
 
 ##define the flowrate
 variable        timeFactor	equal	10.0				#seconds    
-variable        filltime	equal	60.0				#seconds
-variable        fillVoulume     equal   2.5                               #Liter
+variable        filltime	equal	20.0				#seconds
+variable        fillVoulume     equal   2                               #Liter
 
 #fill concrete
 variable	fillmass	equal	${densityCon}*(${fillVoulume}/1000)	#kg
@@ -106,7 +106,7 @@ variable	fillsteps	equal	${filltime}/${dt}		#Transform time to iteration steps
 ## define the speed
 # rpm = roataion per minute
 # ex. 60 rpm = 60 rev/min = 1 rev/s
-variable        screwSpeed      equal   60.0                             #rpm
+variable        screwSpeed      equal   80.0                             #rpm
 variable        screwPeriod     equal   ${screwSpeed}/60.0               #s/rev ,period of the srew rotation (time for 1 rotation)
 
 
@@ -117,7 +117,7 @@ variable	settlesteps	equal	${settletime}/${dt}		#Transform time to iteration ste
 
 
 ####mixing time####
-variable	mixingTime	equal	60.0                              #sec
+variable	mixingTime	equal	30.0                              #sec
 variable	mixingSteps	equal	${mixingTime}/${dt}		#Transform time to iteration steps
 
 
@@ -162,7 +162,7 @@ fix	walls 		all wall/gran model hertz tangential history rolling_friction epsd2 
 
 ####Generation and Insertion of the particles####
 
-fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${densityCon} radius constant ${radiusCon2}	
+fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${densityCon} radius constant ${radiusCon1}	
 #fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${densityCon} radius constant ${radiusCon2}	
 fix	pts3 all particletemplate/sphere 10487 atom_type 1 density constant ${densityAcc} radius constant ${radiusAcc}	
 

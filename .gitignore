@@ -116,6 +116,7 @@ simu/
 *.rhl
 *.rui_bak
 *.vtk
+*.avi
 
 
 temp/**
