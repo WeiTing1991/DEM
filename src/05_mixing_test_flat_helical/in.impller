@@ -83,13 +83,13 @@ variable	densityCon	equal	2700	        #kg/m³ #aggregate desnsity
 #Accelerator particles 
 
 variable	radiusAcc	equal	0.002	        #m 
-variable	densityAcc	equal	2700	        #kg/m³ 
+variable	densityAcc	equal	1200	        #kg/m³ 
 
 #filling parameters#
 
 ##define the flowrate
 variable        timeFactor	equal	10.0				#seconds    
-variable        filltime	equal	20.0				#seconds
+variable        filltime	equal	30.0				#seconds
 variable        fillVoulume     equal   2                               #Liter
 
 #fill concrete
@@ -97,7 +97,7 @@ variable	fillmass	equal	${densityCon}*(${fillVoulume}/1000)	#kg
 variable	fillmassrate	equal	${fillmass}/${filltime}	                #kg/s   
 
 #fill concrete
-variable        factor          equal   0.05
+variable        factor          equal   0.08
 variable	fillmassAcc	equal	${densityAcc}*${fillmass}*${factor}  #kg
 variable	fillmassrateAcc	equal	${fillmassAcc}/${filltime}	        #kg
 
@@ -162,13 +162,13 @@ fix	walls 		all wall/gran model hertz tangential history rolling_friction epsd2 
 
 ####Generation and Insertion of the particles####
 
-#fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${densityCon} radius constant ${radiusCon1}	
-fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${densityCon} radius constant ${radiusCon2}	
+fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${densityCon} radius constant ${radiusCon1}	
+#fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${densityCon} radius constant ${radiusCon2}	
 fix	pts3 all particletemplate/sphere 10487 atom_type 1 density constant ${densityAcc} radius constant ${radiusAcc}	
 
 #fix 	pdd1 all particledistribution/discrete 32452867 ${nradii} pts1 ${frac1} pts2 ${frac2} 
 
-fix 	pdd1 all particledistribution/discrete 32452867 1 pts2 1.0
+fix 	pdd1 all particledistribution/discrete 32452867 1 pts1 1.0
 fix 	pdd2 all particledistribution/discrete 32452843 1 pts3 1.0
 
 fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con_simple_top.stl  type 1 scale 0.001 
@@ -202,15 +202,14 @@ dump   	dumpfunnel all mesh/stl ${dumpstep} post/funnel*.stl funnel
 dump	dumpscrew all mesh/stl ${dumpstep} post/screw*.stl screw screw_inv
 
 #Run simulation
-run     ${fillsteps}
-unfix ins_acc
-unfix ins_con
+run     ${fillsteps}/100
 
-run     ${settlesteps}
+#run     ${settlesteps}
 fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 -1 period ${screwPeriod} 
 fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 1 period ${screwPeriod} 
 
 run     ${mixingSteps}
+
 unfix	Movescrew
 unfix	Movescrew_inv
 

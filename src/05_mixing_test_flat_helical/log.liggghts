@@ -75,8 +75,8 @@ variable	nradii	equal	2
 variable	radiusCon1	equal	0.004	#m Fine aggregates
 variable	radiusCon2	equal	0.008	#m Coarse aggregates
 
-variable	frac1	        equal	0.6		#70%
-variable	frac2	        equal	0.4		#30%
+variable	frac1	        equal	0.7		#70%
+variable	frac2	        equal	0.3		#30%
 
 variable	densityCon	equal	2700	        #kg/m³ #aggregate desnsity
 
@@ -89,27 +89,27 @@ variable	densityAcc	equal	1200	        #kg/m³
 #filling parameters#
 
 ##define the flowrate
-variable        timeFactor	equal	10.0				#60 seconds
-variable        filltime	equal	30.0				#60 seconds
-variable        fillVoulume     equal   1.5                             	#Liter
+variable        timeFactor	equal	10.0				#seconds
+variable        filltime	equal	30.0				#seconds
+variable        fillVoulume     equal   2                               #Liter
 
 #fill concrete
 variable	fillmass	equal	${densityCon}*(${fillVoulume}/1000)	#kg
 variable	fillmass	equal	2700*(${fillVoulume}/1000)	
-variable	fillmass	equal	2700*(1.5/1000)	
+variable	fillmass	equal	2700*(2/1000)	
 variable	fillmassrate	equal	${fillmass}/${filltime}	                #kg/s
-variable	fillmassrate	equal	4.05/${filltime}	                
-variable	fillmassrate	equal	4.05/30	                
+variable	fillmassrate	equal	5.4/${filltime}	                
+variable	fillmassrate	equal	5.4/30	                
 
 #fill concrete
-variable        factor          equal   0.1
-variable	fillmassAcc	equal	${densityAcc}*${fillmass}*${factor}     #kg
-variable	fillmassAcc	equal	1200*${fillmass}*${factor}     
-variable	fillmassAcc	equal	1200*4.05*${factor}     
-variable	fillmassAcc	equal	1200*4.05*0.1     
+variable        factor          equal   0.08
+variable	fillmassAcc	equal	${densityAcc}*${fillmass}*${factor}  #kg
+variable	fillmassAcc	equal	1200*${fillmass}*${factor}  
+variable	fillmassAcc	equal	1200*5.4*${factor}  
+variable	fillmassAcc	equal	1200*5.4*0.08  
 variable	fillmassrateAcc	equal	${fillmassAcc}/${filltime}	        #kg
-variable	fillmassrateAcc	equal	486/${filltime}	        
-variable	fillmassrateAcc	equal	486/30	        
+variable	fillmassrateAcc	equal	518.4/${filltime}	        
+variable	fillmassrateAcc	equal	518.4/30	        
 
 variable	fillsteps	equal	${filltime}/${dt}		#Transform time to iteration steps
 variable	fillsteps	equal	30/${dt}		
@@ -139,17 +139,17 @@ variable	mixingSteps	equal	30/0.0002
 
 
 ####Definition of simulationbox####
-region		domain block ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax} units box
-region		domain block -0.2 ${xmax} ${ymin} ${ymax} ${zmin} ${zmax} units box
-region		domain block -0.2 0.2 ${ymin} ${ymax} ${zmin} ${zmax} units box
-region		domain block -0.2 0.2 -0.3 ${ymax} ${zmin} ${zmax} units box
-region		domain block -0.2 0.2 -0.3 0.3 ${zmin} ${zmax} units box
-region		domain block -0.2 0.2 -0.3 0.3 -0.3 ${zmax} units box
-region		domain block -0.2 0.2 -0.3 0.3 -0.3 0.5 units box
-create_box	2 domain
+region		reg block ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax} units box
+region		reg block -0.2 ${xmax} ${ymin} ${ymax} ${zmin} ${zmax} units box
+region		reg block -0.2 0.2 ${ymin} ${ymax} ${zmin} ${zmax} units box
+region		reg block -0.2 0.2 -0.3 ${ymax} ${zmin} ${zmax} units box
+region		reg block -0.2 0.2 -0.3 0.3 ${zmin} ${zmax} units box
+region		reg block -0.2 0.2 -0.3 0.3 -0.3 ${zmax} units box
+region		reg block -0.2 0.2 -0.3 0.3 -0.3 0.5 units box
+create_box	2 reg
 Created orthogonal box = (-0.2 -0.3 -0.3) to (0.2 0.3 0.5)
-  1 by 2 by 2 MPI processor grid
-neighbor	0.002 bin		# 2x of particle radius may be good
+  1 by 1 by 2 MPI processor grid
+neighbor	0.002 bin		#default
 neigh_modify	delay 0		        #default
 
 
@@ -166,8 +166,7 @@ WARNING:
 	If you perform one of the steps above LIGGGHTS(R) needs to be recompiled to generate the optimized code.
 
  (../contact_models.h:365)
-pair_coeff * * 								#default
-
+pair_coeff	* *				#default
 timestep ${dt}
 timestep 0.0002
 
@@ -207,15 +206,12 @@ fix 	m5 all property/global coefficientRollingFriction peratomtypepair 2 0.05 0.
 ###Generation and Loading of the Geometry####
 
 #load mesh from STL file. Type 2 for geometry. Scale down to transform mm to meters
-fix	funnel 		all mesh/surface file meshes/funnel_in_out.stl type 2 scale 0.001
-fix	lid 		all mesh/surface file meshes/funnel_lid.stl type 2 scale 0.001
-fix	inlet_pipe 	all mesh/surface file meshes/inlet.stl type 2 scale 0.001
-fix	outlet_pipe 	all mesh/surface file meshes/outlet.stl type 2 scale 0.001
+fix	funnel 		all mesh/surface file meshes/funnel.stl type 2 scale 0.001
 
-fix	screw 		all mesh/surface file meshes/impeller_1.stl type 2 scale 0.001 curvature 1e-5 curvature_tolerant yes
-fix	screw_inv 	all mesh/surface file meshes/impeller_inver_2.stl type 2 scale 0.001 curvature 1e-5 curvature_tolerant yes
+fix	screw 		all mesh/surface file meshes/impeller_hexical_1.stl type 2 scale 0.001 curvature 1e-5 curvature_tolerant yes
+fix	screw_inv 	all mesh/surface file meshes/impeller_hexical_inver_2.stl type 2 scale 0.001 curvature 1e-5 curvature_tolerant yes
 
-fix	walls 		all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 6 meshes funnel lid inlet_pipe outlet_pipe screw screw_inv
+fix	walls 		all wall/gran model hertz tangential history rolling_friction epsd2 mesh n_meshes 3 meshes funnel screw screw_inv
 WARNING: 
 	The contact model you specified is not located in any whitelist.
 	Because of this the model will be run in an unoptimized version (increasing runtime by up to 20%).
@@ -244,21 +240,19 @@ fix	pts3 all particletemplate/sphere 10487 atom_type 1 density constant 1200 rad
 fix 	pdd1 all particledistribution/discrete 32452867 1 pts1 1.0
 fix 	pdd2 all particledistribution/discrete 32452843 1 pts3 1.0
 
-fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con.stl  type 1 scale 0.001
+fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con_simple_top.stl  type 1 scale 0.001
 fix	ins_mesh_acc all mesh/surface/planar file meshes/insertion_acc.stl  type 1 scale 0.001
 
-fix 	ins_con_fill all insert/stream seed 86028121 distributiontemplate pdd1         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0.25  0  0         insertion_face ins_mesh_con extrude_length 0.08
-fix 	ins_con_fill all insert/stream seed 86028121 distributiontemplate pdd1         mass 4.05 massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0.25  0  0         insertion_face ins_mesh_con extrude_length 0.08
-fix 	ins_con_fill all insert/stream seed 86028121 distributiontemplate pdd1         mass 4.05 massrate 0.135 overlapcheck yes all_in yes vel constant  0.25  0  0         insertion_face ins_mesh_con extrude_length 0.08
+fix 	ins_con all insert/stream seed 86028121 distributiontemplate pdd1         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0  0 -0.5         insertion_face ins_mesh_con extrude_length 0.08
+fix 	ins_con all insert/stream seed 86028121 distributiontemplate pdd1         mass 5.4 massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0  0 -0.5         insertion_face ins_mesh_con extrude_length 0.08
+fix 	ins_con all insert/stream seed 86028121 distributiontemplate pdd1         mass 5.4 massrate 0.18 overlapcheck yes all_in yes vel constant  0  0 -0.5         insertion_face ins_mesh_con extrude_length 0.08
 
-fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 -1 period ${screwPeriod}
-fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 -1 period 1.33333333333333
-fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 1 period ${screwPeriod}
-fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 1 period 1.33333333333333
+fix 	ins_acc all insert/stream seed 86028121 distributiontemplate pdd2         mass ${fillmassAcc} massrate ${fillmassrateAcc} overlapcheck yes all_in yes vel constant 0.4 0.3  0          insertion_face ins_mesh_acc extrude_length 0.02
+fix 	ins_acc all insert/stream seed 86028121 distributiontemplate pdd2         mass 518.4 massrate ${fillmassrateAcc} overlapcheck yes all_in yes vel constant 0.4 0.3  0          insertion_face ins_mesh_acc extrude_length 0.02
+fix 	ins_acc all insert/stream seed 86028121 distributiontemplate pdd2         mass 518.4 massrate 17.28 overlapcheck yes all_in yes vel constant 0.4 0.3  0          insertion_face ins_mesh_acc extrude_length 0.02
 
 ####Dumping of the data for post-processing to visualize####
 
-shell	rmdir post
 shell 	mkdir post
 shell   mkdir simu
 
@@ -274,90 +268,5 @@ variable dumpstep equal 0.05/0.0002
 
 #Run simulation iteration==1 and dump the file
 run    	1
-Setting up run at Mon Apr  3 00:44:05 2023
+Setting up run at Mon Apr  3 00:50:36 2023
 
-WARNING: Fix mesh: Mesh contains highly skewed element, moving mesh (if used) will not parallelize well (../surface_mesh_I.h:657)
-WARNING: Fix mesh: Mesh contains highly skewed element, moving mesh (if used) will not parallelize well (../surface_mesh_I.h:657)
-INFO: Particle insertion ins_con_fill: 59.683104 particles every 1600 steps - particle rate 186.509699, (mass rate 1.350000e-01)
-      5595 particles (mass 4.049789e+00) within 148800 steps
-Memory usage per processor = 23.4104 Mbytes
-    Step    Atoms         KinEng            CPU 
-       0        0              0              0 
-INFO: Particle insertion ins_con_fill: inserted 59 particle templates (mass 4.270555e-02) at step 1
- - a total of 59 particle templates (mass 4.270555e-02) inserted so far.
-       1       59   0.0013345486    0.016115484 
-Loop time of 0.0161231 on 4 procs for 1 steps with 59 atoms, finish time Mon Apr  3 00:44:05 2023
-
-
-Pair  time (%) = 4.324e-06 (0.0268186)
-Neigh time (%) = 0.000439245 (2.72431)
-Comm  time (%) = 0.000739649 (4.5875)
-Outpt time (%) = 0.00183501 (11.3812)
-Other time (%) = 0.0131049 (81.2801)
-
-Nlocal:    14.75 ave 30 max 0 min
-Histogram: 2 0 0 0 0 0 0 0 0 2
-Nghost:    11 ave 23 max 0 min
-Histogram: 2 0 0 0 0 0 0 0 0 2
-Neighs:    12.75 ave 30 max 0 min
-Histogram: 2 0 0 0 0 0 0 1 0 1
-
-Total # of neighbors = 51
-Ave neighs/atom = 0.864407
-Neighbor list builds = 1
-Dangerous builds = 0
-dump   	dmpparticle all custom/vtk ${dumpstep} post/particles_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
-dump   	dmpparticle all custom/vtk 250 post/particles_*.vtk id type type x y z ix iy iz vx vy vz fx fy fz omegax omegay omegaz radius
-dump   	dumpfunnel all mesh/stl ${dumpstep} post/funnel*.stl funnel
-dump   	dumpfunnel all mesh/stl 250 post/funnel*.stl funnel
-dump   	dumppipe all mesh/stl ${dumpstep} post/pipe*.stl outlet_pipe inlet_pipe
-dump   	dumppipe all mesh/stl 250 post/pipe*.stl outlet_pipe inlet_pipe
-dump	dumpscrew all mesh/stl ${dumpstep} post/screw*.stl screw screw_inv
-dump	dumpscrew all mesh/stl 250 post/screw*.stl screw screw_inv
-
-#Run simulation
-
-#infill the funnel
-run     ${fillsteps}/3
-run     150000/3
-Setting up run at Mon Apr  3 00:44:05 2023
-
-Memory usage per processor = 29.0562 Mbytes
-    Step    Atoms         KinEng            CPU 
-       1       59   0.0013345486              0 
-INFO: Particle insertion ins_con_fill: inserted 59 particle templates (mass 4.270555e-02) at step 1601
- - a total of 118 particle templates (mass 8.541111e-02) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 58 particle templates (mass 4.198173e-02) at step 3201
- - a total of 176 particle templates (mass 1.273928e-01) inserted so far.
-WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
-INFO: Particle insertion ins_con_fill: inserted 59 particle templates (mass 4.270555e-02) at step 4801
- - a total of 235 particle templates (mass 1.700984e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 59 particle templates (mass 4.270555e-02) at step 6401
- - a total of 294 particle templates (mass 2.128039e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 59 particle templates (mass 4.270555e-02) at step 8001
- - a total of 353 particle templates (mass 2.555095e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 59 particle templates (mass 4.270555e-02) at step 9601
- - a total of 412 particle templates (mass 2.982151e-01) inserted so far.
-WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
-INFO: Particle insertion ins_con_fill: inserted 60 particle templates (mass 4.342938e-02) at step 11201
- - a total of 472 particle templates (mass 3.416444e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 59 particle templates (mass 4.270555e-02) at step 12801
- - a total of 531 particle templates (mass 3.843500e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 60 particle templates (mass 4.342938e-02) at step 14401
- - a total of 591 particle templates (mass 4.277794e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 59 particle templates (mass 4.270555e-02) at step 16001
- - a total of 650 particle templates (mass 4.704849e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 60 particle templates (mass 4.342938e-02) at step 17601
- - a total of 710 particle templates (mass 5.139143e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 59 particle templates (mass 4.270555e-02) at step 19201
- - a total of 769 particle templates (mass 5.566198e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 60 particle templates (mass 4.342938e-02) at step 20801
- - a total of 829 particle templates (mass 6.000492e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 60 particle templates (mass 4.342938e-02) at step 22401
- - a total of 889 particle templates (mass 6.434786e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserted 56 particle templates (mass 4.053409e-02) at step 24001
- - a total of 945 particle templates (mass 6.840127e-01) inserted so far.
-WARNING: Particle insertion: Less insertions than requested (../fix_insert.cpp:814)
-INFO: Particle insertion ins_con_fill: inserted 60 particle templates (mass 4.342938e-02) at step 25601
- - a total of 1005 particle templates (mass 7.274421e-01) inserted so far.
-INFO: Particle insertion ins_con_fill: inserte
