@@ -22,7 +22,7 @@ variable zmax equal 0.5
 
 #Definition of the timestep
 #timestep = 0.0001 second; Each iteration step represents 0.0001 seconds.
-variable dt equal 1e-4			
+variable dt equal 2e-4			
 
 
 ###Specific variables for current simulation####
@@ -74,8 +74,8 @@ variable	nradii	equal	2
 variable	radiusCon1	equal	0.004	#m Fine aggregates
 variable	radiusCon2	equal	0.008	#m Coarse aggregates
 
-variable	frac1	        equal	0.7		#70%
-variable	frac2	        equal	0.3		#30%
+variable	frac1	        equal	0.6		#70%
+variable	frac2	        equal	0.4		#30%
 
 variable	densityCon	equal	2700	        #kg/m³ #aggregate desnsity
 
@@ -90,14 +90,14 @@ variable	densityAcc	equal	1200	        #kg/m³
 ##define the flowrate
 variable        timeFactor	equal	10.0				#60 seconds    
 variable        filltime	equal	30.0				#60 seconds
-variable        fillVoulume     equal   3                             	#Liter
+variable        fillVoulume     equal   1.5                             	#Liter
 
 #fill concrete
 variable	fillmass	equal	${densityCon}*(${fillVoulume}/1000)	#kg
 variable	fillmassrate	equal	${fillmass}/${filltime}	                #kg/s   
 
 #fill concrete
-variable        factor          equal   0.05
+variable        factor          equal   0.1
 variable	fillmassAcc	equal	${densityAcc}*${fillmass}*${factor}     #kg
 variable	fillmassrateAcc	equal	${fillmassAcc}/${filltime}	        #kg
 
@@ -124,7 +124,7 @@ variable	mixingSteps	equal	${mixingTime}/${dt}		#Transform time to iteration ste
 ####Definition of simulationbox####
 region		domain block ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax} units box
 create_box	2 domain
-neighbor	0.008 bin		# 2x of particle radius may be good
+neighbor	0.002 bin		# 2x of particle radius may be good
 neigh_modify	delay 0		        #default
 
 
@@ -181,6 +181,9 @@ fix 	ins_con_fill all insert/stream seed 86028121 distributiontemplate pdd1 &
         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0.25  0  0 &
         insertion_face ins_mesh_con extrude_length 0.08
 
+fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 -1 period ${screwPeriod} 
+fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 1 period ${screwPeriod} 
+        
 ####Dumping of the data for post-processing to visualize####
 
 shell	rmdir post
@@ -204,28 +207,23 @@ dump	dumpscrew all mesh/stl ${dumpstep} post/screw*.stl screw screw_inv
 
 #Run simulation
 
-run     ${fillsteps}/2
+#infill the funnel 
+run     ${fillsteps}/3
 
-run     ${settlesteps}
-unfix 	ins_con_fill
 
-fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 1 period ${screwPeriod} 
-fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 -1 period ${screwPeriod} 
-
-fix 	ins_con all insert/stream seed 86028121 distributiontemplate pdd1 &
-        mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0.25  0  0 &
-        insertion_face ins_mesh_con extrude_length 0.08
-        
-fix 	ins_acc all insert/stream seed 86028121 distributiontemplate pdd2 &
-        mass ${fillmassAcc} massrate ${fillmassrateAcc} overlapcheck yes all_in yes vel constant 0.25  0.25  0  &
+fix 	ins_acc_fill all insert/stream seed 86028121 distributiontemplate pdd2 &
+        mass ${fillmassAcc} massrate ${fillmassrateAcc} overlapcheck yes all_in yes vel constant 0.15  0.2  0  &
         insertion_face ins_mesh_acc extrude_length 0.02
         
+
 run     ${mixingSteps}
 
-unfix 	ins_con
-unfix   ins_acc
-unfix	Movescrew
-unfix	Movescrew_inv
+
+unfix 	Movescrew
+unfix 	Movescrew_inv
+
+
+run     ${settlesteps}
 
 write_restart resrart/reactor.restart
 

@@ -22,7 +22,7 @@ variable zmax equal 0.5
 
 #Definition of the timestep
 #timestep = 0.0001 second; Each iteration step represents 0.0001 seconds.
-variable dt equal 1e-4			
+variable dt equal 2e-4			
 
 
 ###Specific variables for current simulation####
@@ -162,13 +162,13 @@ fix	walls 		all wall/gran model hertz tangential history rolling_friction epsd2 
 
 ####Generation and Insertion of the particles####
 
-fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${densityCon} radius constant ${radiusCon1}	
-#fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${densityCon} radius constant ${radiusCon2}	
+#fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${densityCon} radius constant ${radiusCon1}	
+fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${densityCon} radius constant ${radiusCon2}	
 fix	pts3 all particletemplate/sphere 10487 atom_type 1 density constant ${densityAcc} radius constant ${radiusAcc}	
 
 #fix 	pdd1 all particledistribution/discrete 32452867 ${nradii} pts1 ${frac1} pts2 ${frac2} 
 
-fix 	pdd1 all particledistribution/discrete 32452867 1 pts1 1.0
+fix 	pdd1 all particledistribution/discrete 32452867 1 pts2 1.0
 fix 	pdd2 all particledistribution/discrete 32452843 1 pts3 1.0
 
 fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con_simple_top.stl  type 1 scale 0.001 
@@ -178,6 +178,10 @@ fix 	ins_con all insert/stream seed 86028121 distributiontemplate pdd1 &
         mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0  0 -0.5 &
         insertion_face ins_mesh_con extrude_length 0.08
 
+fix 	ins_acc all insert/stream seed 86028121 distributiontemplate pdd2 &
+        mass ${fillmassAcc} massrate ${fillmassrateAcc} overlapcheck yes all_in yes vel constant 0.4 0.3  0  &
+        insertion_face ins_mesh_acc extrude_length 0.02
+        
 ####Dumping of the data for post-processing to visualize####
 
 shell 	mkdir post
@@ -199,19 +203,14 @@ dump	dumpscrew all mesh/stl ${dumpstep} post/screw*.stl screw screw_inv
 
 #Run simulation
 run     ${fillsteps}
-unfix   ins_con
+unfix ins_acc
+unfix ins_con
 
 run     ${settlesteps}
+fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 -1 period ${screwPeriod} 
+fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 1 period ${screwPeriod} 
 
-fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 1 period ${screwPeriod} 
-fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 -1 period ${screwPeriod} 
-
-fix 	ins_acc all insert/stream seed 86028121 distributiontemplate pdd2 &
-        mass ${fillmassAcc} massrate ${fillmassrateAcc} overlapcheck yes all_in yes vel constant 0.75 0.75  0  &
-        insertion_face ins_mesh_acc extrude_length 0.02
 run     ${mixingSteps}
-
-unfix   ins_acc
 unfix	Movescrew
 unfix	Movescrew_inv
 

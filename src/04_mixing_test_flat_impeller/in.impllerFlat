@@ -22,7 +22,7 @@ variable zmax equal 0.5
 
 #Definition of the timestep
 #timestep = 0.0001 second; Each iteration step represents 0.0001 seconds.
-variable dt equal 2e-4			
+variable dt equal 1e-4			
 
 
 ###Specific variables for current simulation####
@@ -88,16 +88,17 @@ variable	densityAcc	equal	1200	        #kg/m³
 #filling parameters#
 
 ##define the flowrate
-variable        timeFactor	equal	10.0				#60 seconds    
-variable        filltime	equal	20.0				#60 seconds
-variable        fillVoulume     equal   3                             	#Liter
+
+variable        timeFactor	equal	10.0					#60 seconds    
+variable        filltime	equal	30.0					#60 seconds
+variable        fillVoulume     equal   2                            		#Liter
 
 #fill concrete
-variable	fillmass	equal	${densityCon}*(${fillVoulume}/1000)	#kg
-variable	fillmassrate	equal	${fillmass}/${filltime}	                #kg/s   
+variable	fillmass	equal	${densityCon}*(${fillVoulume}/1000)	#kg	
+variable	fillmassrate	equal	${fillmass}/${filltime}	                #kg/s; 5L/min   
 
 #fill accelertor
-variable        factor          equal   0.05
+variable        factor          equal   0.08
 variable	fillmassAcc	equal	${densityAcc}*${fillmass}*${factor}     #kg
 variable	fillmassrateAcc	equal	${fillmassAcc}/${filltime}	        #kg
 #Transform time to iteration steps
@@ -125,7 +126,7 @@ variable	mixingSteps	equal	${mixingTime}/${dt}		#Transform time to iteration ste
 ####Definition of simulationbox####
 region		domain block ${xmin} ${xmax} ${ymin} ${ymax} ${zmin} ${zmax} units box
 create_box	2 domain
-neighbor	0.016 bin		# 2x of particle radius may be good
+neighbor	0.002 bin		# 0.5 of particle radius may be good
 neigh_modify	delay 0		        #default
 
 
@@ -164,7 +165,8 @@ fix	walls 		all wall/gran model hertz tangential history rolling_friction epsd2 
 
 ####Generation and Insertion of the particles####
 
-fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${densityCon} radius constant ${radiusCon1}	
+fix	pts1 all particletemplate/sphere 10487 atom_type 1 density constant ${densityCon} radius constant ${radiusCon1}
+	
 #fix	pts2 all particletemplate/sphere 11887 atom_type 1 density constant ${densityCon} radius constant ${radiusCon2}	
 
 fix	pts3 all particletemplate/sphere 10487 atom_type 1 density constant ${densityAcc} radius constant ${radiusAcc}	
@@ -178,15 +180,14 @@ fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con_simple_top.st
 fix	ins_mesh_acc all mesh/surface/planar file meshes/insertion_acc.stl  type 1 scale 0.001 
 
 fix 	ins_con all insert/stream seed 86028121 distributiontemplate pdd1 &
-        mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0  0 -0.15 &
+        mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0  0 -0.5 &
         insertion_face ins_mesh_con extrude_length 0.08
-        
+
 fix 	ins_acc all insert/stream seed 86028121 distributiontemplate pdd2 &
-        mass ${fillmassAcc} massrate ${fillmassrateAcc} overlapcheck yes all_in yes vel constant 0.12 0.12  0  &
-        insertion_face ins_mesh_acc extrude_length 0.02        
-
-
-
+        mass ${fillmassAcc} massrate ${fillmassrateAcc} overlapcheck yes all_in yes vel constant 0.4 0.3  0  &
+        insertion_face ins_mesh_acc extrude_length 0.02
+        
+               
 ####Dumping of the data for post-processing to visualize####
 
 shell	rmdir post
@@ -196,7 +197,7 @@ shell   mkdir simu
 #Definition of the dumptime
 
 variable dumptime equal 0.05	                        # Every 0.05 s 1 image 
-variable dumpstep equal ${dumptime}/${dt}	        #Transform to iteration steps
+variable dumpstep equal ${dumptime}/${dt}	        # Transform to iteration steps
 
 
 ####Run####
@@ -209,12 +210,11 @@ dump	dumpscrew all mesh/stl ${dumpstep} post/screw*.stl screw screw_inv
 
 #Run simulation
 
-run     ${fillsteps}
+run     ${fillsteps}/100
 
-
-run     ${settlesteps}
-fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 1 period ${screwPeriod} 
-fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 -1 period ${screwPeriod} 
+#run     ${settlesteps}
+fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 -1 period ${screwPeriod} 
+fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 1 period ${screwPeriod} 
 
 run     ${mixingSteps}
 
