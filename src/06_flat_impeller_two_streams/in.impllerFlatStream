@@ -22,7 +22,7 @@ variable zmax equal 0.5
 
 #Definition of the timestep
 #timestep = 0.0001 second; Each iteration step represents 0.0001 seconds.
-variable dt equal 2e-4			
+variable dt equal 1e-4			
 
 
 ###Specific variables for current simulation####
@@ -32,9 +32,9 @@ variable natoms equal 2 	        #1 -> particle #2->funnel, screw, and screw_inv
 #Variable for material properties#
 
 #Young Modulus
-#soft_particles yes
-variable	youngModulusCon 	equal 	5e6	#N/mm² (30 to 50Gpa)
-variable	youngModulus    	equal 	5e6	#N/mm² (30 to 50Gpa)
+soft_particles no
+variable	youngModulusCon 	equal 	3.2e8	#N/mm² (30 to 50Gpa)
+variable	youngModulus    	equal 	3.2e8	#N/mm² (30 to 50Gpa)
 
 variable	youngModulusAcc 	equal 	2e4	#N/mm² (10Gpa)
 
@@ -150,9 +150,8 @@ fix 	m5 all property/global coefficientRollingFriction peratomtypepair ${natoms}
 
 
 ###Generation and Loading of the Geometry####
-
 #load mesh from STL file. Type 2 for geometry. Scale down to transform mm to meters
-fix	funnel 		all mesh/surface file meshes/funnel_in_out.stl type 2 scale 0.001 
+fix	funnel 		all mesh/surface file meshes/funnel_in_out_fix.stl type 2 scale 0.001 
 fix	lid 		all mesh/surface file meshes/funnel_lid.stl type 2 scale 0.001 
 fix	inlet_pipe 	all mesh/surface file meshes/inlet.stl type 2 scale 0.001 
 fix	outlet_pipe 	all mesh/surface file meshes/outlet.stl type 2 scale 0.001 
@@ -179,12 +178,10 @@ fix	ins_mesh_con all mesh/surface/planar file meshes/insertion_con.stl  type 1 s
 fix	ins_mesh_acc all mesh/surface/planar file meshes/insertion_acc.stl  type 1 scale 0.001 
 
 fix 	ins_con_fill all insert/stream seed 86028121 distributiontemplate pdd1 &
-        mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0.25  0  0 &
+        mass ${fillmass}/2 massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0.25  0  0 &
         insertion_face ins_mesh_con extrude_length 0.08
+               
 
-fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 -1 period ${screwPeriod} 
-fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 1 period ${screwPeriod} 
-        
 ####Dumping of the data for post-processing to visualize####
 
 shell	rmdir post
@@ -209,18 +206,20 @@ dump	dumpscrew all mesh/stl ${dumpstep} post/screw*.stl screw screw_inv
 #Run simulation
 
 #infill the funnel 
-run     ${fillsteps}/3
+run     ${fillsteps}/100
 
-fix 	ins_acc_fill all insert/stream seed 86028121 distributiontemplate pdd2 &
-        mass ${fillmassAcc} massrate ${fillmassrateAcc} overlapcheck yes all_in yes vel constant 0.3  0.4 0  &
+fix	Movescrew  all move/mesh mesh screw rotate origin 0 -0.045 0 axis 0 0 -1 period ${screwPeriod} 
+fix	Movescrew_inv  all move/mesh mesh screw_inv rotate origin 0 0.045 0 axis 0 0 1 period ${screwPeriod}
+
+fix 	ins_con all insert/stream seed 86028121 distributiontemplate pdd1 &
+        mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0.25  0  0 &
+        insertion_face ins_mesh_con extrude_length 0.08
+                
+fix 	ins_acc all insert/stream seed 86028121 distributiontemplate pdd2 &
+        mass ${fillmassAcc} massrate ${fillmassrateAcc} overlapcheck yes all_in yes vel constant 0.15  0.2 0  &
         insertion_face ins_mesh_acc extrude_length 0.02
         
-fix 	ins_con all insert/stream seed 86028121 distributiontemplate pdd1 &
-        mass ${fillmass} massrate ${fillmassrate} overlapcheck yes all_in yes vel constant  0.5  0  0 &
-        insertion_face ins_mesh_con extrude_length 0.08
-
 run     ${mixingSteps}
-
 
 unfix 	Movescrew
 unfix 	Movescrew_inv

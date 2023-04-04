@@ -22,7 +22,7 @@ variable zmax equal 0.5
 
 #Definition of the timestep
 #timestep = 0.0001 second; Each iteration step represents 0.0001 seconds.
-variable dt equal 2e-4			
+variable dt equal 1e-4			
 
 
 ###Specific variables for current simulation####
@@ -97,7 +97,7 @@ variable	fillmass	equal	${densityCon}*(${fillVoulume}/1000)	#kg
 variable	fillmassrate	equal	${fillmass}/${filltime}	                #kg/s   
 
 #fill concrete
-variable        factor          equal   0.08
+variable        factor          equal   0.1
 variable	fillmassAcc	equal	${densityAcc}*${fillmass}*${factor}  #kg
 variable	fillmassrateAcc	equal	${fillmassAcc}/${filltime}	        #kg
 
@@ -202,6 +202,7 @@ dump   	dumpfunnel all mesh/stl ${dumpstep} post/funnel*.stl funnel
 dump	dumpscrew all mesh/stl ${dumpstep} post/screw*.stl screw screw_inv
 
 #Run simulation
+
 run     ${fillsteps}/100
 
 #run     ${settlesteps}
